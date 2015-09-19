@@ -9,6 +9,37 @@ class ArticlePresenter extends Presenter
 {
     use DatetimePresenter;
 
+    public function summary()
+    {
+        return mb_string_limit($this->entity->summary, setting('display.summary_limit'));
+    }
+
+    /**
+     * @param bool $small
+     * @param string $class
+     * @return string
+     */
+    public function imageHtml($class = '', $small = true)
+    {
+        if ($this->entity->image) {
+            $url = $this->entity->getImageUrl($small);
+            $title = $this->entity->title;
+            $class = $class ? " class=\"{$class}\"" : '';
+            return "<img{$class} src=\"{$url}\" alt=\"{$title}\" title=\"{$title}\">";
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * @param bool $small
+     * @return mixed
+     */
+    public function imageUrl($small = true)
+    {
+        return $this->entity->getImageUrl($small);
+    }
+
     /**
      * Ex: danh sách bài viết liên quan, bài viết mới nhất
      *
@@ -63,26 +94,6 @@ LIST;
     public function linkWithTime($timeFormat = [])
     {
         return "<a href=\"{$this->entity->url}\">{$this->entity->title} <span class=\"time\">{$this->updatedAt($timeFormat)}</span></a>";
-    }
-
-    /**
-     * Link preview article
-     *
-     * @param mixed $author
-     * @return string
-     */
-    public function linkPreview($author = null)
-    {
-        return Html::modalLink(
-            route('backend.article.preview', ['article', $this->entity->id]),
-            $this->entity->title,
-            [
-                'title' => trans('article.preview'),
-                'icon'  => 'fa-file-text',
-                'width' => 'large',
-                'note'  => str_replace('<br>', ' — ', $this->metadata($author)),
-            ]
-        );
     }
 
     /**

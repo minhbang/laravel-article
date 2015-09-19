@@ -1,22 +1,89 @@
 <?php
-namespace Minhbang\LaravelCategory;
+namespace Minhbang\LaravelArticle;
 
 use Minhbang\LaravelKit\Extensions\BackendController;
+use Conner\Tagging\Tag;
+use Minhbang\LaravelKit\Traits\Controller\QuickUpdateActions;
 use Request;
+use Datatable;
+use Session;
+use Html;
 
-class CategoryController extends BackendController
+class ArticleBackendController extends BackendController
 {
-    /**
-     * Quản lý category
-     *
-     * @var \Minhbang\LaravelCategory\Category
-     */
-    protected $manager;
+    use QuickUpdateActions;
 
+    /** @var  \Minhbang\LaravelCategory\Category */
+    protected $typeManager;
+
+    /**
+     * ArticleBackendController constructor.
+     */
     public function __construct()
     {
-        parent::__construct(config('category.middlewares'));
-        $this->manager = app('category');
+        parent::__construct(config('article.middlewares.backend'));
+        $this->typeManager = app('category')->manage('article-backend');
+    }
+
+    /**
+     * Danh sách Article theo định dạng của Datatables.
+     *
+     * @return \Datatable JSON
+     */
+    public function data()
+    {
+        /** @var \Minhbang\LaravelArticle\Article $query */
+        $query = Article::queryDefault()->withAuthor()->orderUpdated()->categorized($this->typeManager->root);
+        if (Request::has('search_form')) {
+            $query = $query
+                ->searchWhereBetween('articles.created_at', 'mb_date_vn2mysql')
+                ->searchWhereBetween('articles.updated_at', 'mb_date_vn2mysql');
+        }
+        return Datatable::query($query)
+            ->addColumn(
+                'index',
+                function (Article $model) {
+                    return $model->id;
+                }
+            )
+            ->addColumn(
+                'title',
+                function (Article $model) {
+                    return Html::linkQuickUpdate(
+                        $model->id,
+                        $model->title,
+                        [
+                            'attr'  => 'title',
+                            'title' => trans("article::common.title"),
+                            'class' => 'w-lg',
+                        ]
+                    );
+                }
+            )
+            ->addColumn(
+                'author',
+                function ($model) {
+                    return $model->author;
+                }
+            )
+            ->addColumn(
+                'actions',
+                function (Article $model) {
+                    return Html::tableActions(
+                        'backend/article',
+                        $model->id,
+                        $model->title,
+                        $this->typeManager->getTypeName(),
+                        [
+                            'renderPreview' => 'modal-large',
+                            'renderEdit'    => 'link',
+                            'renderShow'    => 'link',
+                        ]
+                    );
+                }
+            )
+            ->searchColumns('articles.title')
+            ->make();
     }
 
     /**
@@ -26,250 +93,191 @@ class CategoryController extends BackendController
     public function index($type = null)
     {
         if ($type) {
-            $this->manager->switchType($type);
+            $this->typeManager->switchType($type);
         }
-        $max_depth = $this->manager->max_depth;
-        $nestable = $this->manager->nestable();
-        $types = $this->manager->types;
-        $current = $this->manager->root->slug;
+        $tableOptions = [
+            'id'        => 'article-manage',
+            'row_index' => true,
+        ];
+        $options = [
+            'aoColumnDefs' => [
+                ['sClass' => 'min-width text-right', 'aTargets' => [0]],
+                ['sClass' => 'min-width', 'aTargets' => [-1, -2]],
+            ],
+        ];
+        $table = Datatable::table()
+            ->addColumn(
+                '',
+                trans('article::common.title'),
+                trans('article::common.user'),
+                trans('common.actions')
+            )
+            ->setOptions($options)
+            ->setCustomValues($tableOptions);
+        $typeName = $this->typeManager->getTypeName();
         $this->buildHeading(
-            [trans('category::common.manage'), "[{$types[$current]}]"],
-            'fa-sitemap',
-            ['#' => trans('category::common.category')]
+            [trans('common.manage'), $typeName],
+            'fa-newspaper-o',
+            ['#' => $typeName]
         );
-        return view('category::index', compact('max_depth', 'nestable', 'types', 'current'));
+        $this->menuInfo($this->typeManager->getTypeSlug());
+        return view('article::backend.index', compact('tableOptions', 'options', 'table', 'typeName'));
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
      * @return \Illuminate\View\View
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     public function create()
     {
-        return $this->_create();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @param \Minhbang\LaravelCategory\CategoryItem $category
-     * @return \Illuminate\View\View
-     */
-    public function createChildOf(CategoryItem $category)
-    {
-        return $this->_create($category);
-    }
-
-    /**
-     * @param null|\Minhbang\LaravelCategory\CategoryItem $parent
-     * @return \Illuminate\View\View
-     */
-    protected function _create($parent = null)
-    {
-        if ($parent) {
-            $parent_title = $parent->title;
-            $url = route('backend.category.storeChildOf', ['category' => $parent->id]);
-        } else {
-            $parent_title = '- ROOT -';
-            $url = route('backend.category.store');
-        }
-        $category = new CategoryItem();
+        $article = new Article();
+        $url = route('backend.article.store');
         $method = 'post';
-        return view(
-            'category::form',
-            compact('parent_title', 'url', 'method', 'category')
-        );
-    }
-
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Minhbang\LaravelCategory\CategoryItemRequest $request
-     * @return \Illuminate\View\View
-     */
-    public function store(CategoryItemRequest $request)
-    {
-        return $this->_store($request);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Minhbang\LaravelCategory\CategoryItemRequest $request
-     * @param \Minhbang\LaravelCategory\CategoryItem $category
-     * @return \Illuminate\View\View
-     */
-    public function storeChildOf(CategoryItemRequest $request, CategoryItem $category)
-    {
-        return $this->_store($request, $category);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Minhbang\LaravelCategory\CategoryItemRequest $request
-     * @param null|\Minhbang\LaravelCategory\CategoryItem $parent
-     * @return \Illuminate\View\View
-     */
-    public function _store($request, $parent = null)
-    {
-        $category = new CategoryItem();
-        $category->fill($request->all());
-        $category->save();
-        if ($parent) {
-            $category->makeChildOf($parent);
-        } else {
-            $category->makeChildOf($this->manager->root);
-        }
-        return view(
-            '_modal_script',
+        $tags = '';
+        $allTags = implode(',', Tag::lists('name')->all());
+        $typeName = $this->typeManager->getTypeName();
+        $categories = $this->typeManager->selectize();
+        $this->buildHeading(
+            [trans('common.create'), $typeName],
+            'plus-sign',
             [
-                'message'    => [
-                    'type'    => 'success',
-                    'content' => trans('common.create_object_success', ['name' => trans('category::common.item')])
-                ],
-                'reloadPage' => true,
+                route('backend.article.index') => $typeName,
+                '#'                            => trans('common.create'),
             ]
         );
+        $this->menuInfo($this->typeManager->getTypeSlug());
+        return view(
+            'article::backend.form',
+            compact('article', 'url', 'method', 'tags', 'allTags', 'categories')
+        );
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param \Minhbang\LaravelCategory\CategoryItem $category
-     * @return \Illuminate\View\View
+     * @param \Minhbang\LaravelArticle\ArticleRequest $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function show(CategoryItem $category)
+    public function store(ArticleRequest $request)
     {
-        return view('category::show', compact('category'));
+        $article = new Article();
+        $article->fill($request->all());
+        $article->fillImage($request);
+        $article->user_id = user('id');
+        $article->save();
+        $article->fillTags($request);
+        Session::flash(
+            'message',
+            [
+                'type'    => 'success',
+                'content' => trans('common.create_object_success', ['name' => $this->typeManager->getTypeName()]),
+            ]
+        );
+        return redirect(route('backend.article.index'));
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param \Minhbang\LaravelCategory\CategoryItem $category
+     * @param \Minhbang\LaravelArticle\Article $article
      * @return \Illuminate\View\View
      */
-    public function edit(CategoryItem $category)
+    public function show(Article $article)
     {
-        $parent_title = $category->isRoot() ? '- ROOT -' : $category->parent->title;
-        $url = route('backend.category.update', ['category' => $category->id]);
+        $typeName = $this->typeManager->getTypeName();
+        $this->buildHeading(
+            [trans('common.view_detail'), $typeName],
+            'list',
+            [
+                route('backend.article.index') => $typeName,
+                '#'                            => trans('common.view_detail'),
+            ]
+        );
+        $this->menuInfo($this->typeManager->getTypeSlug());
+        return view('article::backend.show', compact('article', 'typeName'));
+    }
+
+    /**
+     * @param \Minhbang\LaravelArticle\Article $article
+     * @return \Illuminate\View\View
+     */
+    public function preview(Article $article)
+    {
+        return view('article::backend.preview', compact('article'));
+    }
+
+    /**
+     * @param \Minhbang\LaravelArticle\Article $article
+     * @return \Illuminate\View\View
+     */
+    public function edit(Article $article)
+    {
+        $url = route('backend.article.update', ['article' => $article->id]);
         $method = 'put';
-        return view('category::form', compact('parent_title', 'url', 'method', 'category'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Minhbang\LaravelCategory\CategoryItemRequest $request
-     * @param \Minhbang\LaravelCategory\CategoryItem $category
-     * @return \Illuminate\View\View
-     */
-    public function update(CategoryItemRequest $request, CategoryItem $category)
-    {
-        $category->fill($request->all());
-        $category->save();
-        return view(
-            '_modal_script',
+        $tags = implode(',', $article->tagNames());
+        $allTags = implode(',', Tag::lists('name')->all());
+        $typeName = $this->typeManager->getTypeName();
+        $categories = $this->typeManager->selectize();
+        $this->buildHeading(
+            [trans('common.update'), $typeName],
+            'edit',
             [
-                'message'    => [
-                    'type'    => 'success',
-                    'content' => trans('common.update_object_success', ['name' => trans('category::common.item')])
-                ],
-                'reloadPage' => true,
+                route('backend.article.index') => $typeName,
+                '#'                            => trans('common.edit'),
             ]
+        );
+        $this->menuInfo($this->typeManager->getTypeSlug());
+        return view(
+            'article::backend.form',
+            compact('article', 'categories', 'url', 'method', 'tags', 'allTags')
         );
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param \Minhbang\LaravelCategory\CategoryItem $category
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param \Minhbang\LaravelArticle\ArticleRequest $request
+     * @param \Minhbang\LaravelArticle\Article $article
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function update(ArticleRequest $request, Article $article)
+    {
+        $article->fill($request->all());
+        $article->fillImage($request);
+        $article->save();
+        $article->fillTags($request);
+        Session::flash(
+            'message',
+            [
+                'type'    => 'success',
+                'content' => trans('common.update_object_success', ['name' => $this->typeManager->getTypeName()]),
+            ]
+        );
+        return redirect(route('backend.article.index'));
+    }
+
+    /**
+     * @param \Minhbang\LaravelArticle\Article $article
+     * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
-    public function destroy(CategoryItem $category)
+    public function destroy(Article $article)
     {
-        $category->delete();
+        $article->delete();
         return response()->json(
             [
                 'type'    => 'success',
-                'content' => trans('common.delete_object_success', ['name' => trans('category::common.category')]),
+                'content' => trans('common.delete_object_success', ['name' => $this->typeManager->getTypeName()]),
             ]
         );
     }
 
     /**
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
-     */
-    public function data()
-    {
-        return response()->json(['html' => $this->manager->nestable()]);
-    }
-
-    /**
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function move()
-    {
-        if ($category = $this->getNode('element')) {
-            if ($leftNode = $this->getNode('left')) {
-                $category->moveToRightOf($leftNode);
-            } else {
-                if ($rightNode = $this->getNode('right')) {
-                    $category->moveToLeftOf($rightNode);
-                } else {
-                    if ($destNode = $this->getNode('parent')) {
-                        $category->makeChildOf($destNode);
-                    } else {
-                        return $this->dieAjax();
-                    }
-                }
-            }
-            return response()->json(
-                [
-                    'type'    => 'success',
-                    'content' => trans('common.order_object_success', ['name' => trans('category::common.item')]),
-                ]
-            );
-        } else {
-            return $this->dieAjax();
-        }
-    }
-
-    /**
-     * @param string $name
-     * @return null|\Minhbang\LaravelCategory\CategoryItem
-     */
-    protected function getNode($name)
-    {
-        $id = Request::input($name);
-        if ($id) {
-            if ($node = CategoryItem::find($id)) {
-                return $node;
-            } else {
-                return $this->dieAjax();
-            }
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Kết thúc App, trả về message dạng JSON
+     * Các attributes cho phéo quick-update
      *
-     * @return mixed
+     * @return array
      */
-    protected function dieAjax()
+    protected function quickUpdateAttributes()
     {
-        return die(json_encode(
-            [
-                'type'    => 'error',
-                'content' => trans('category::common.not_found')
-            ]
-        ));
+        return [
+            'title' => [
+                'rules' => 'required|max:255',
+                'label' => trans('article::common.title')
+            ],
+        ];
     }
 }

@@ -5,6 +5,11 @@ use Minhbang\LaravelKit\Extensions\Controller;
 
 class ArticleFrontendController extends Controller
 {
+    public function __construct()
+    {
+        parent::__construct(config('article.middlewares.frontend'));
+    }
+
     /**
      * @param string $slug
      * @return \Illuminate\View\View
