@@ -103,6 +103,15 @@
 @section('script')
     <script type="text/javascript">
         $(document).ready(function () {
+            $('.wysiwyg').mbEditor({
+                //upload image
+                imageUploadURL: '{!! route('image.store') !!}',
+                imageMaxSize: {{setting('system.max_image_size') * 1024 * 1024 }}, //bytes
+                // load image
+                imageManagerLoadURL: '{!! route('image.data') !!}',
+                // custom options
+                imageDeleteURL: '{!! route('image.delete') !!}'
+            });
         });
     </script>
 @stop
