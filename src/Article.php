@@ -2,18 +2,19 @@
 namespace Minhbang\LaravelArticle;
 
 use Laracasts\Presenter\PresentableTrait;
-use Conner\Tagging\TaggableTrait;
-use Conner\Tagging\TaggingUtil;
 use Minhbang\LaravelKit\Extensions\Model;
+use Minhbang\LaravelKit\Traits\Model\AttributeQuery;
 use Minhbang\LaravelKit\Traits\Model\DatetimeQuery;
 use Minhbang\LaravelKit\Traits\Model\SearchQuery;
+use Minhbang\LaravelKit\Traits\Model\TaggableTrait;
 use Minhbang\LaravelUser\Support\UserQuery;
 use Minhbang\LaravelCategory\CategoryQuery;
-use DB;
+use Image;
 
 /**
- * Minhbang\LaravelArticle\Article
+ * Class Article
  *
+ * @package Minhbang\LaravelArticle
  * @property integer $id
  * @property string $title
  * @property string $slug
@@ -31,6 +32,7 @@ use DB;
  * @property-read mixed $resource_name
  * @property-read \Minhbang\LaravelUser\User $user
  * @property-read \Minhbang\LaravelCategory\CategoryItem $category
+ * @property-write mixed $tags
  * @property-read \Illuminate\Database\Eloquent\Collection|\Conner\Tagging\Tagged[] $tagged
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereTitle($value)
@@ -46,15 +48,9 @@ use DB;
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article queryDefault()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article related()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article orderByMatchedTag($tagNames, $direction = 'desc')
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelKit\Extensions\Model except($id = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article notMine()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article mine()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article withAuthor()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article categorized($category = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article withAllTags($tagNames)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article withAnyTag($tagNames)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article hasStr($str, $attribute = 'content', $boolean = 'and')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article exclusion($value, $attribute = 'id', $boolean = 'and')
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article orderCreated($direction = 'desc')
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article orderUpdated($direction = 'desc')
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article period($start = null, $end = null, $field = 'created_at', $end_if_day = false, $is_month = false)
@@ -62,13 +58,22 @@ use DB;
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article yesterday($same_time = false, $field = 'created_at')
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article thisWeek($field = 'created_at')
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article thisMonth($field = 'created_at')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article notMine()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article mine()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article withAuthor()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article categorized($category = null)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhere($column, $operator = '=', $fn = null)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereIn($column, $fn)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereBetween($column, $fn = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereInDependent($column, $column_dependent, $fn, $empty = [])
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereInDependent($column, $column_dependent, $fn, $empty = array())
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article related()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article orderByMatchedTag($tagNames, $direction = 'desc')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article withAllTags($tagNames)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article withAnyTag($tagNames)
  */
 class Article extends Model
 {
+    use AttributeQuery;
     use DatetimeQuery;
     use UserQuery;
     use CategoryQuery;
@@ -77,7 +82,13 @@ class Article extends Model
     use TaggableTrait;
     protected $table = 'articles';
     protected $presenter = 'Minhbang\LaravelArticle\ArticlePresenter';
-    protected $fillable = ['title', 'slug', 'summary', 'content', 'category_id'];
+    protected $fillable = ['title', 'slug', 'summary', 'content', 'category_id', 'tags'];
+
+    /**
+     * @var array các attribute có image
+     */
+    public $has_images = 'content';
+
     /**
      * @var string Loại article (chính là slug của root category)
      */
@@ -90,54 +101,6 @@ class Article extends Model
     public function scopeQueryDefault($query)
     {
         return $query->select("{$this->table}.*");
-    }
-
-    /**
-     * Bài viết liên quan
-     *
-     * @param \Illuminate\Database\Query\Builder|static $query
-     * @return \Illuminate\Database\Query\Builder|static
-     */
-    public function scopeRelated($query)
-    {
-        return $this->scopeWithAllTags($query, $this->tagNames());
-    }
-
-    /**
-     * Sắp xếp theo tags
-     *
-     * @param \Illuminate\Database\Query\Builder|static $query
-     * @param mixed $tagNames
-     * @param string $direction
-     * @return \Illuminate\Database\Query\Builder|static
-     */
-    public function scopeOrderByMatchedTag($query, $tagNames, $direction = 'desc')
-    {
-        if (empty($tagNames)) {
-            return $query;
-        }
-        $pdo = DB::connection()->getPdo();
-        $tagNames = TaggingUtil::makeTagArray($tagNames);
-        $normalizer = config('tagging.normalizer');
-        $normalizer = empty($normalizer) ? 'Conner\Tagging\TaggingUtil::slug' : $normalizer;
-        $tagNames = array_map(
-            function ($tagSlug) use ($pdo, $normalizer) {
-                return $pdo->quote(call_user_func($normalizer, $tagSlug));
-            },
-            $tagNames
-        );
-        $tagNames = implode(',', $tagNames);
-        $type = $pdo->quote(static::class);
-        $t = 'tagging_tagged';
-        return $query->addSelect(
-            DB::raw(
-                "(
-                    SELECT COUNT(*)
-                    FROM `$t`
-                    WHERE `$t`.`taggable_id` = `articles`.`id` AND `$t`.`taggable_type` = $type AND `tag_slug` IN ($tagNames)
-                ) AS `count_matched_tag`"
-            )
-        )->orderBy('count_matched_tag', $direction);
     }
 
     /**
@@ -154,22 +117,6 @@ class Article extends Model
                 'article.show_with_type',
                 ['article' => $this->id, 'slug' => $this->slug, 'type' => $this->type]
             );
-        }
-    }
-
-    /**
-     * Call khi save Article
-     *
-     * @param \App\Http\Requests\Request $request
-     */
-    public function fillTags($request)
-    {
-        if ($this->exists) {
-            if ($tags = $request->get('tags')) {
-                $this->retag($tags);
-            }
-        } else {
-            abort(500, 'Error: Must be call Article retag after save new record');
         }
     }
 
@@ -269,6 +216,14 @@ class Article extends Model
                     @unlink($model->getImagePath());
                     @unlink($model->getImagePath($model->getImageSmall()));
                 }
+            }
+        );
+
+        // cập nhật image used count
+        static::saving(
+            function ($model) {
+                /** @var static $model */
+                Image::updateDB($model);
             }
         );
     }

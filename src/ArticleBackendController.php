@@ -163,7 +163,6 @@ class ArticleBackendController extends BackendController
         $article->fillImage($request);
         $article->user_id = user('id');
         $article->save();
-        $article->fillTags($request);
         Session::flash(
             'message',
             [
@@ -239,7 +238,6 @@ class ArticleBackendController extends BackendController
         $article->fill($request->all());
         $article->fillImage($request);
         $article->save();
-        $article->fillTags($request);
         Session::flash(
             'message',
             [

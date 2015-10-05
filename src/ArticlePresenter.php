@@ -68,11 +68,11 @@ LIST;
 
     public function tagsHtml()
     {
-        $result = '';
         if ($tags = $this->entity->tagNames()) {
-            $result = implode('</span><span class="label label-primary">', $tags);
+            return '<span class="label label-primary">' . implode('</span><span class="label label-primary">', $tags) . '</span>';
+        } else {
+            return null;
         }
-        return "<span class=\"label label-primary\">$result</span>";
     }
 
     /**
@@ -109,7 +109,7 @@ LIST;
             'article.metadata',
             [
                 'datetime' => $this->updatedAt(),
-                'hit'      => $this->entity->hit
+                'hit'      => $this->entity->hit,
             ]
         );
         return $metadata;
