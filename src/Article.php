@@ -2,14 +2,13 @@
 namespace Minhbang\LaravelArticle;
 
 use Laracasts\Presenter\PresentableTrait;
-use Minhbang\LaravelKit\Extensions\Model;
+use Minhbang\LaravelImage\Model;
 use Minhbang\LaravelKit\Traits\Model\AttributeQuery;
 use Minhbang\LaravelKit\Traits\Model\DatetimeQuery;
 use Minhbang\LaravelKit\Traits\Model\SearchQuery;
 use Minhbang\LaravelKit\Traits\Model\TaggableTrait;
 use Minhbang\LaravelUser\Support\UserQuery;
 use Minhbang\LaravelCategory\CategoryQuery;
-use Image;
 
 /**
  * Class Article
@@ -32,7 +31,7 @@ use Image;
  * @property-read mixed $resource_name
  * @property-read \Minhbang\LaravelUser\User $user
  * @property-read \Minhbang\LaravelCategory\CategoryItem $category
- * @property-write mixed $tags
+ * @property mixed $tags
  * @property-read \Illuminate\Database\Eloquent\Collection|\Conner\Tagging\Tagged[] $tagged
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereTitle($value)
@@ -85,9 +84,9 @@ class Article extends Model
     protected $fillable = ['title', 'slug', 'summary', 'content', 'category_id', 'tags'];
 
     /**
-     * @var array các attribute có image
+     * @var array các attributes có thể insert image
      */
-    public $has_images = 'content';
+    public $has_images = ['content'];
 
     /**
      * @var string Loại article (chính là slug của root category)
@@ -96,6 +95,7 @@ class Article extends Model
 
     /**
      * @param \Illuminate\Database\Query\Builder|static $query
+     *
      * @return \Illuminate\Database\Query\Builder|static
      */
     public function scopeQueryDefault($query)
@@ -121,7 +121,7 @@ class Article extends Model
     }
 
     /**
-     * @param $value
+     * @param string $value
      */
     public function setContentAttribute($value)
     {
@@ -130,6 +130,7 @@ class Article extends Model
 
     /**
      * @param bool $full
+     *
      * @return string
      */
     public function getImageDirectory($full = true)
@@ -139,6 +140,7 @@ class Article extends Model
 
     /**
      * @param null|string $image
+     *
      * @return string
      */
     public function getImagePath($image = null)
@@ -149,6 +151,7 @@ class Article extends Model
     /**
      * @param bool $small
      * @param bool $no_image
+     *
      * @return string|null
      */
     public function getImageUrl($small = false, $no_image = false)
@@ -188,12 +191,12 @@ class Article extends Model
             [
                 'main' => [
                     'width'  => setting('display.image_width_md'),
-                    'height' => setting('display.image_height_md')
+                    'height' => setting('display.image_height_md'),
                 ],
                 'sm'   => [
                     'width'  => setting('display.image_width_sm'),
-                    'height' => setting('display.image_height_sm')
-                ]
+                    'height' => setting('display.image_height_sm'),
+                ],
             ],
             ['method' => 'fit'],
             $this->image
@@ -208,7 +211,7 @@ class Article extends Model
     public static function boot()
     {
         parent::boot();
-        // trước khi xóa Post, sẽ xóa hình đại diện của nó
+        // trước khi xóa $model, sẽ xóa hình đại diện của nó
         static::deleting(
             function ($model) {
                 /** @var static $model */
@@ -216,14 +219,6 @@ class Article extends Model
                     @unlink($model->getImagePath());
                     @unlink($model->getImagePath($model->getImageSmall()));
                 }
-            }
-        );
-
-        // cập nhật image used count
-        static::saving(
-            function ($model) {
-                /** @var static $model */
-                Image::updateDB($model);
             }
         );
     }
