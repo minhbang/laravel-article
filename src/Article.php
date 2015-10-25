@@ -1,8 +1,8 @@
 <?php
 namespace Minhbang\LaravelArticle;
 
+use Minhbang\LaravelImage\ImageableModel as Model;
 use Laracasts\Presenter\PresentableTrait;
-use Minhbang\LaravelImage\Model;
 use Minhbang\LaravelKit\Traits\Model\AttributeQuery;
 use Minhbang\LaravelKit\Traits\Model\DatetimeQuery;
 use Minhbang\LaravelKit\Traits\Model\SearchQuery;
@@ -64,7 +64,7 @@ use Minhbang\LaravelCategory\CategoryQuery;
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhere($column, $operator = '=', $fn = null)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereIn($column, $fn)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereBetween($column, $fn = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereInDependent($column, $column_dependent, $fn, $empty = array())
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereInDependent($column, $column_dependent, $fn, $empty = [])
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article related()
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article orderByMatchedTag($tagNames, $direction = 'desc')
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article withAllTags($tagNames)
@@ -79,19 +79,23 @@ class Article extends Model
     use SearchQuery;
     use PresentableTrait;
     use TaggableTrait;
+
     protected $table = 'articles';
     protected $presenter = 'Minhbang\LaravelArticle\ArticlePresenter';
     protected $fillable = ['title', 'slug', 'summary', 'content', 'category_id', 'tags'];
 
     /**
-     * @var array các attributes có thể insert image
-     */
-    public $has_images = ['content'];
-
-    /**
      * @var string Loại article (chính là slug của root category)
      */
     public $type;
+
+    /**
+     * @return array Các attributes có thể insert image
+     */
+    public function imageables()
+    {
+        return ['content'];
+    }
 
     /**
      * @param \Illuminate\Database\Query\Builder|static $query
