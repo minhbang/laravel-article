@@ -1,5 +1,7 @@
 # Laravel Article
 
+> **Branch 1.0:** _không sử dụng Access Control_
+
 ## Install
 
 * **Thêm vào file composer.json của app**
