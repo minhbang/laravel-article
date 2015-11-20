@@ -23,7 +23,7 @@ class CreateArticlesTable extends Migration {
 			$table->integer('hit')->unsigned()->default(0);
 			$table->integer('user_id')->unsigned();
 			$table->integer('category_id')->unsigned();
-			$table->string('image', 255)->nullable();
+			$table->string('featured_image', 255)->nullable();
 			$table->timestamp('published_at');
 			$table->timestamps();
 		});

@@ -1,21 +1,26 @@
 <?php
 return [
-    /**
-     * Thư mục chứa hình ảnh bài viết, thư mục con của <upload_path>
-     */
-    'images_dir'  => 'images/articles',
+    // Hình đại diện của bài viết, lưu trong thư mục con của <upload_path>
+    'featured_image' => [
+        'dir'       => 'images/articles',
+        'width'     => 490,
+        'height'    => 294,
+        'width_sm'  => 110,
+        'height_sm' => 80,
+
+    ],
     /**
      * Tự động add các route
      */
-    'add_route'   => true,
+    'add_route'      => true,
     /**
-     * Category type
+     * Category types của Article, chú ý phải add những type này vào category config
      */
-    'category'    => 'article',
+    'types'          => ['article'],
     /**
      * Khai báo middlewares cho các Controller
      */
-    'middlewares' => [
+    'middlewares'    => [
         'frontend' => null,
         'backend'  => 'admin',
     ],

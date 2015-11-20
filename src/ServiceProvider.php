@@ -1,11 +1,16 @@
 <?php
 
-namespace Minhbang\LaravelArticle;
+namespace Minhbang\Article;
 
 use Illuminate\Routing\Router;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
-class ArticleServiceProvider extends ServiceProvider
+/**
+ * Class ServiceProvider
+ *
+ * @package Minhbang\Article
+ */
+class ServiceProvider extends BaseServiceProvider
 {
     /**
      * Perform post-registration booting of services.
@@ -34,7 +39,7 @@ class ArticleServiceProvider extends ServiceProvider
         // pattern filters
         $router->pattern('article', '[0-9]+');
         // model bindings
-        $router->model('article', 'Minhbang\LaravelArticle\Article');
+        $router->model('article', 'Minhbang\Article\Article');
     }
 
     /**

@@ -72,11 +72,11 @@
                         </div>
                         <div class="col-lg-12 col-md-5">
                             <div class="form-group form-image{{ $errors->has('image') ? ' has-error':'' }}">
-                                {!! Form::label('image', trans('article::common.image'), ['class' => 'control-label']) !!}
+                                {!! Form::label('image', trans('article::common.featured_image'), ['class' => 'control-label']) !!}
                                 {!! Form::selectImage('image', ['thumbnail' => [
-                                    'url' => $article->present()->imageUrl,
-                                    'width' => setting('display.image_width_md'),
-                                    'height' => setting('display.image_height_md')
+                                    'url' => $article->featured_image_url,
+                                    'width' => $article->config['featured_image']['width'],
+                                    'height' => $article->config['featured_image']['height']
                                 ]]) !!}
                                 @if($errors->has('image'))
                                     <p class="help-block">{{ $errors->first('image') }}</p>

@@ -1,20 +1,36 @@
 <?php
-namespace Minhbang\LaravelArticle;
+namespace Minhbang\Article;
 
-use Minhbang\LaravelKit\Extensions\BackendController;
-use Conner\Tagging\Tag;
+use Minhbang\AccessControl\Traits\HasAccessControl;
+use Minhbang\LaravelKit\Extensions\BackendController as BaseController;
 use Minhbang\LaravelKit\Traits\Controller\QuickUpdateActions;
+use Minhbang\Article\Request as ArticleRequest;
 use Request;
 use Datatable;
 use Session;
 use Html;
 
-class ArticleBackendController extends BackendController
+/**
+ * Class BackendController
+ *
+ * @package Minhbang\Article
+ */
+class BackendController extends BaseController
 {
     use QuickUpdateActions;
+    use HasAccessControl;
 
-    /** @var  \Minhbang\LaravelCategory\Category */
+    /** @var  \Minhbang\Category\Manager */
     protected $typeManager;
+
+    /**
+     * @var string Loại bài viết hiện tại
+     */
+    protected $type;
+    /**
+     * @var string[] Danh sách các types hợp lệ của article
+     */
+    protected $types;
 
     /**
      * ArticleBackendController constructor.
@@ -22,8 +38,71 @@ class ArticleBackendController extends BackendController
     public function __construct()
     {
         parent::__construct(config('article.middlewares.backend'));
-        $this->typeManager = app('category')->manage('article-backend');
+        $this->types = config('article.types');
+        $this->switchType();
     }
+
+    /**
+     * @return string
+     */
+    protected function resource()
+    {
+        return 'article';
+    }
+
+    /**
+     * @param null|string $type
+     */
+    protected function switchType($type = null)
+    {
+        $key = 'backend.article.type';
+        $type = $type ?: session($key, current($this->types));
+        if (!in_array($type, $this->types)) {
+            Session::forget($key);
+            abort(404, trans('category::type.invalid'));
+        }
+        session([$key => $type]);
+        $this->typeManager = app('category')->manage($type, $key);
+        $this->type = $type;
+    }
+
+    /**
+     * @param string|null $type
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index($type = null)
+    {
+        $this->switchType($type);
+        $tableOptions = [
+            'id'        => 'article-manage',
+            'row_index' => true,
+        ];
+        $options = [
+            'aoColumnDefs' => [
+                ['sClass' => 'min-width text-right', 'aTargets' => [0]],
+                ['sClass' => 'min-width', 'aTargets' => [-1, -2]],
+            ],
+        ];
+        $table = Datatable::table()
+            ->addColumn(
+                '',
+                trans('article::common.title'),
+                trans('article::common.user'),
+                trans('common.actions')
+            )
+            ->setOptions($options)
+            ->setCustomValues($tableOptions);
+        $typeName = $this->typeManager->typeName();
+        $this->buildHeading(
+            [trans('common.manage'), $typeName],
+            'fa-newspaper-o',
+            ['#' => $typeName]
+        );
+        $this->menuInfo($this->type);
+        return view('article::backend.index', compact('tableOptions', 'options', 'table', 'typeName'));
+    }
+
 
     /**
      * Danh sách Article theo định dạng của Datatables.
@@ -32,8 +111,8 @@ class ArticleBackendController extends BackendController
      */
     public function data()
     {
-        /** @var \Minhbang\LaravelArticle\Article $query */
-        $query = Article::queryDefault()->withAuthor()->orderUpdated()->categorized($this->typeManager->root);
+        /** @var \Minhbang\Article\Article $query */
+        $query = Article::queryDefault()->withAuthor()->orderUpdated()->categorized($this->typeManager->typeRoot());
         if (Request::has('search_form')) {
             $query = $query
                 ->searchWhereBetween('articles.created_at', 'mb_date_vn2mysql')
@@ -73,7 +152,7 @@ class ArticleBackendController extends BackendController
                         'backend/article',
                         $model->id,
                         $model->title,
-                        $this->typeManager->getTypeName(),
+                        $this->typeManager->typeName(),
                         [
                             'renderPreview' => 'modal-large',
                             'renderEdit'    => 'link',
@@ -87,44 +166,6 @@ class ArticleBackendController extends BackendController
     }
 
     /**
-     * @param string|null $type
-     * @return \Illuminate\View\View
-     */
-    public function index($type = null)
-    {
-        if ($type) {
-            $this->typeManager->switchType($type);
-        }
-        $tableOptions = [
-            'id'        => 'article-manage',
-            'row_index' => true,
-        ];
-        $options = [
-            'aoColumnDefs' => [
-                ['sClass' => 'min-width text-right', 'aTargets' => [0]],
-                ['sClass' => 'min-width', 'aTargets' => [-1, -2]],
-            ],
-        ];
-        $table = Datatable::table()
-            ->addColumn(
-                '',
-                trans('article::common.title'),
-                trans('article::common.user'),
-                trans('common.actions')
-            )
-            ->setOptions($options)
-            ->setCustomValues($tableOptions);
-        $typeName = $this->typeManager->getTypeName();
-        $this->buildHeading(
-            [trans('common.manage'), $typeName],
-            'fa-newspaper-o',
-            ['#' => $typeName]
-        );
-        $this->menuInfo($this->typeManager->getTypeSlug());
-        return view('article::backend.index', compact('tableOptions', 'options', 'table', 'typeName'));
-    }
-
-    /**
      * @return \Illuminate\View\View
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
@@ -134,8 +175,8 @@ class ArticleBackendController extends BackendController
         $url = route('backend.article.store');
         $method = 'post';
         $tags = '';
-        $allTags = implode(',', Tag::lists('name')->all());
-        $typeName = $this->typeManager->getTypeName();
+        $allTags = Article::allTagNames();
+        $typeName = $this->typeManager->typeName();
         $categories = $this->typeManager->selectize();
         $this->buildHeading(
             [trans('common.create'), $typeName],
@@ -145,7 +186,7 @@ class ArticleBackendController extends BackendController
                 '#'                            => trans('common.create'),
             ]
         );
-        $this->menuInfo($this->typeManager->getTypeSlug());
+        $this->menuInfo($this->type);
         return view(
             'article::backend.form',
             compact('article', 'url', 'method', 'tags', 'allTags', 'categories')
@@ -153,33 +194,35 @@ class ArticleBackendController extends BackendController
     }
 
     /**
-     * @param \Minhbang\LaravelArticle\ArticleRequest $request
+     * @param \Minhbang\Article\Request $request
+     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function store(ArticleRequest $request)
     {
         $article = new Article();
         $article->fill($request->all());
-        $article->fillImage($request);
+        $article->fillFeaturedImage($request);
         $article->user_id = user('id');
         $article->save();
         Session::flash(
             'message',
             [
                 'type'    => 'success',
-                'content' => trans('common.create_object_success', ['name' => $this->typeManager->getTypeName()]),
+                'content' => trans('common.create_object_success', ['name' => $this->typeManager->typeName()]),
             ]
         );
         return redirect(route('backend.article.index'));
     }
 
     /**
-     * @param \Minhbang\LaravelArticle\Article $article
+     * @param \Minhbang\Article\Article $article
+     *
      * @return \Illuminate\View\View
      */
     public function show(Article $article)
     {
-        $typeName = $this->typeManager->getTypeName();
+        $typeName = $this->typeManager->typeName();
         $this->buildHeading(
             [trans('common.view_detail'), $typeName],
             'list',
@@ -188,12 +231,13 @@ class ArticleBackendController extends BackendController
                 '#'                            => trans('common.view_detail'),
             ]
         );
-        $this->menuInfo($this->typeManager->getTypeSlug());
+        $this->menuInfo($this->type);
         return view('article::backend.show', compact('article', 'typeName'));
     }
 
     /**
-     * @param \Minhbang\LaravelArticle\Article $article
+     * @param \Minhbang\Article\Article $article
+     *
      * @return \Illuminate\View\View
      */
     public function preview(Article $article)
@@ -202,7 +246,8 @@ class ArticleBackendController extends BackendController
     }
 
     /**
-     * @param \Minhbang\LaravelArticle\Article $article
+     * @param \Minhbang\Article\Article $article
+     *
      * @return \Illuminate\View\View
      */
     public function edit(Article $article)
@@ -210,8 +255,8 @@ class ArticleBackendController extends BackendController
         $url = route('backend.article.update', ['article' => $article->id]);
         $method = 'put';
         $tags = implode(',', $article->tagNames());
-        $allTags = implode(',', Tag::lists('name')->all());
-        $typeName = $this->typeManager->getTypeName();
+        $allTags = Article::allTagNames();
+        $typeName = $this->typeManager->typeName();
         $categories = $this->typeManager->selectize();
         $this->buildHeading(
             [trans('common.update'), $typeName],
@@ -221,7 +266,7 @@ class ArticleBackendController extends BackendController
                 '#'                            => trans('common.edit'),
             ]
         );
-        $this->menuInfo($this->typeManager->getTypeSlug());
+        $this->menuInfo($this->type);
         return view(
             'article::backend.form',
             compact('article', 'categories', 'url', 'method', 'tags', 'allTags')
@@ -229,27 +274,29 @@ class ArticleBackendController extends BackendController
     }
 
     /**
-     * @param \Minhbang\LaravelArticle\ArticleRequest $request
-     * @param \Minhbang\LaravelArticle\Article $article
+     * @param \Minhbang\Article\Request $request
+     * @param \Minhbang\Article\Article $article
+     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function update(ArticleRequest $request, Article $article)
     {
         $article->fill($request->all());
-        $article->fillImage($request);
+        $article->fillFeaturedImage($request);
         $article->save();
         Session::flash(
             'message',
             [
                 'type'    => 'success',
-                'content' => trans('common.update_object_success', ['name' => $this->typeManager->getTypeName()]),
+                'content' => trans('common.update_object_success', ['name' => $this->typeManager->typeName()]),
             ]
         );
         return redirect(route('backend.article.index'));
     }
 
     /**
-     * @param \Minhbang\LaravelArticle\Article $article
+     * @param \Minhbang\Article\Article $article
+     *
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
@@ -259,7 +306,7 @@ class ArticleBackendController extends BackendController
         return response()->json(
             [
                 'type'    => 'success',
-                'content' => trans('common.delete_object_success', ['name' => $this->typeManager->getTypeName()]),
+                'content' => trans('common.delete_object_success', ['name' => $this->typeManager->typeName()]),
             ]
         );
     }
@@ -274,7 +321,7 @@ class ArticleBackendController extends BackendController
         return [
             'title' => [
                 'rules' => 'required|max:255',
-                'label' => trans('article::common.title')
+                'label' => trans('article::common.title'),
             ],
         ];
     }

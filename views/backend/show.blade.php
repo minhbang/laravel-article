@@ -19,8 +19,8 @@
         <td>{!! $article->present()->tagsHtml !!}</td>
     </tr>
     <tr>
-        <td>{{ trans('article::common.image') }}</td>
-        <td>{!! $article->present()->imageHtml !!}</td>
+        <td>{{ trans('article::common.featured_image') }}</td>
+        <td>{!! $article->present()->featured_image !!}</td>
     </tr>
     <tr>
         <td>{{ trans('article::common.user') }}</td>

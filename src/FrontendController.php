@@ -1,9 +1,14 @@
 <?php
-namespace Minhbang\LaravelArticle;
+namespace Minhbang\Article;
 
 use Minhbang\LaravelKit\Extensions\Controller;
 
-class ArticleFrontendController extends Controller
+/**
+ * Class FrontendController
+ *
+ * @package Minhbang\Article
+ */
+class FrontendController extends Controller
 {
     public function __construct()
     {
@@ -24,7 +29,7 @@ class ArticleFrontendController extends Controller
 
     /**
      * @param string $type
-     * @param \Minhbang\LaravelArticle\Article $article
+     * @param \Minhbang\Article\Article $article
      * @param string $slug
      * @return \Illuminate\View\View
      */
@@ -34,7 +39,7 @@ class ArticleFrontendController extends Controller
     }
 
     /**
-     * @param \Minhbang\LaravelArticle\Article $article
+     * @param \Minhbang\Article\Article $article
      * @param string $slug
      * @return \Illuminate\View\View
      */

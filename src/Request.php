@@ -1,14 +1,14 @@
 <?php
-namespace Minhbang\LaravelArticle;
+namespace Minhbang\Article;
 
-use Minhbang\LaravelKit\Extensions\Request;
+use Minhbang\LaravelKit\Extensions\Request as BaseRequest;
 
 /**
- * Class ArticleRequest
+ * Class Request
  *
- * @package Minhbang\LaravelArticle
+ * @package Minhbang\Article
  */
-class ArticleRequest extends Request
+class Request extends BaseRequest
 {
     public $trans_prefix = 'article::common';
     public $rules = [
@@ -37,7 +37,7 @@ class ArticleRequest extends Request
      */
     public function rules()
     {
-        /** @var \Minhbang\LaravelArticle\Article $article */
+        /** @var \Minhbang\Article\Article $article */
         if ($article = $this->route('article')) {
             // update
         } else {

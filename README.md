@@ -22,7 +22,7 @@ $ composer update
 
 * **Thêm vào file config/app.php => 'providers'**
 ```php
-	Minhbang\LaravelArticle\ArticleServiceProvider::class,
+	Minhbang\Article\ServiceProvider::class,
 ```
 
 * **Publish config và database migrations**

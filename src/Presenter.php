@@ -1,49 +1,49 @@
 <?php
-namespace Minhbang\LaravelArticle;
+namespace Minhbang\Article;
 
-use Laracasts\Presenter\Presenter;
+use Laracasts\Presenter\Presenter as BasePresenter;
 use Html;
 use Minhbang\LaravelKit\Traits\Presenter\DatetimePresenter;
 
-class ArticlePresenter extends Presenter
+/**
+ * Class Presenter
+ *
+ * @package Minhbang\Article
+ */
+class Presenter extends BasePresenter
 {
     use DatetimePresenter;
 
+    /**
+     * @return string
+     */
     public function summary()
     {
         return mb_string_limit($this->entity->summary, setting('display.summary_limit'));
     }
 
     /**
-     * @param bool $small
-     * @param string $class
+     * @param string|null $class
+     * @param bool $sm
+     * @param bool $title
+     *
      * @return string
      */
-    public function imageHtml($class = '', $small = true)
+    public function featured_image($class = 'img-responsive', $sm = false, $title = false)
     {
-        if ($this->entity->image) {
-            $url = $this->entity->getImageUrl($small);
-            $title = $this->entity->title;
-            $class = $class ? " class=\"{$class}\"" : '';
-            return "<img{$class} src=\"{$url}\" alt=\"{$title}\" title=\"{$title}\">";
-        } else {
-            return '';
-        }
-    }
-
-    /**
-     * @param bool $small
-     * @return mixed
-     */
-    public function imageUrl($small = true)
-    {
-        return $this->entity->getImageUrl($small);
+        $src = $this->entity->featuredImageUrl($sm);
+        $class = $class ? " class =\"$class\"" : '';
+        $html = $title ? "<div class=\"title\">{$this->entity->name}</div>" : '';
+        $sm = $sm ? '_sm' : '';
+        $width = $this->entity->config['featured_image']["width{$sm}"];
+        $height = $this->entity->config['featured_image']["height{$sm}"];
+        return "<img{$class} src=\"$src\" title=\"{$this->entity->name}\" ath=\"{$this->entity->name}\" width=\"$width\" height=\"$height\" />{$html}";
     }
 
     /**
      * Ex: danh sách bài viết liên quan, bài viết mới nhất
      *
-     * @param \Minhbang\LaravelArticle\Article[] $items
+     * @param \Minhbang\Article\Article[] $items
      * @param string $name
      * @param string $title
      * @param array $timeFormat

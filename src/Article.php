@@ -1,19 +1,23 @@
 <?php
-namespace Minhbang\LaravelArticle;
+namespace Minhbang\Article;
 
+use Minhbang\AccessControl\Contracts\HasPermissionModel;
+use Minhbang\AccessControl\Traits\HasPermission;
+use Minhbang\AccessControl\Traits\HasPolicy;
+use Minhbang\Category\Categorized;
 use Minhbang\LaravelImage\ImageableModel as Model;
 use Laracasts\Presenter\PresentableTrait;
 use Minhbang\LaravelKit\Traits\Model\AttributeQuery;
 use Minhbang\LaravelKit\Traits\Model\DatetimeQuery;
+use Minhbang\LaravelKit\Traits\Model\FeaturedImage;
 use Minhbang\LaravelKit\Traits\Model\SearchQuery;
 use Minhbang\LaravelKit\Traits\Model\TaggableTrait;
 use Minhbang\LaravelUser\Support\UserQuery;
-use Minhbang\LaravelCategory\CategoryQuery;
 
 /**
  * Class Article
  *
- * @package Minhbang\LaravelArticle
+ * @package Minhbang\Article
  * @property integer $id
  * @property string $title
  * @property string $slug
@@ -30,59 +34,76 @@ use Minhbang\LaravelCategory\CategoryQuery;
  * @property-read mixed $url
  * @property-read mixed $resource_name
  * @property-read \Minhbang\LaravelUser\User $user
- * @property-read \Minhbang\LaravelCategory\CategoryItem $category
+ * @property-read \Minhbang\Category\Item $category
  * @property mixed $tags
  * @property-read \Illuminate\Database\Eloquent\Collection|\Conner\Tagging\Tagged[] $tagged
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereId($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereTitle($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereSlug($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereSummary($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereContent($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereStatus($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereHit($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereUserId($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereCategoryId($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereImage($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article wherePublishedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereCreatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article queryDefault()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereTitle($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereSlug($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereSummary($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereContent($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereStatus($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereHit($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereUserId($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereCategoryId($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereImage($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article wherePublishedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article queryDefault()
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelKit\Extensions\Model except($id = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article hasStr($str, $attribute = 'content', $boolean = 'and')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article exclusion($value, $attribute = 'id', $boolean = 'and')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article orderCreated($direction = 'desc')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article orderUpdated($direction = 'desc')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article period($start = null, $end = null, $field = 'created_at', $end_if_day = false, $is_month = false)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article today($field = 'created_at')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article yesterday($same_time = false, $field = 'created_at')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article thisWeek($field = 'created_at')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article thisMonth($field = 'created_at')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article notMine()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article mine()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article withAuthor()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article categorized($category = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhere($column, $operator = '=', $fn = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereIn($column, $fn)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereBetween($column, $fn = null)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article searchWhereInDependent($column, $column_dependent, $fn, $empty = [])
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article related()
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article orderByMatchedTag($tagNames, $direction = 'desc')
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article withAllTags($tagNames)
- * @method static \Illuminate\Database\Query\Builder|\Minhbang\LaravelArticle\Article withAnyTag($tagNames)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article hasStr($str, $attribute = 'content', $boolean = 'and')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article exclusion($value, $attribute = 'id', $boolean = 'and')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article orderCreated($direction = 'desc')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article orderUpdated($direction = 'desc')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article period($start = null, $end = null, $field = 'created_at', $end_if_day = false, $is_month = false)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article today($field = 'created_at')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article yesterday($same_time = false, $field = 'created_at')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article thisWeek($field = 'created_at')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article thisMonth($field = 'created_at')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article notMine()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article mine()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article withAuthor()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article categorized($category = null)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article searchWhere($column, $operator = '=', $fn = null)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article searchWhereIn($column, $fn)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article searchWhereBetween($column, $fn = null)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article searchWhereInDependent($column, $column_dependent, $fn, $empty = [])
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article related()
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article orderByMatchedTag($tagNames, $direction = 'desc')
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article withAllTags($tagNames)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article withAnyTag($tagNames)
  */
-class Article extends Model
+class Article extends Model implements HasPermissionModel
 {
     use AttributeQuery;
     use DatetimeQuery;
+    use Categorized;
     use UserQuery;
-    use CategoryQuery;
     use SearchQuery;
     use PresentableTrait;
     use TaggableTrait;
+    use HasPolicy;
+    use HasPermission;
+    use FeaturedImage;
 
     protected $table = 'articles';
-    protected $presenter = 'Minhbang\LaravelArticle\ArticlePresenter';
+    protected $presenter = 'Minhbang\Article\Presenter';
+    protected $policy_class = 'Minhbang\AccessControl\Policies\StatusBasedPolicy';
     protected $fillable = ['title', 'slug', 'summary', 'content', 'category_id', 'tags'];
+
+    /**
+     * Article constructor.
+     *
+     * @param array $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->config([
+            'featured_image' => config('article.featured_image'),
+        ]);
+    }
 
     /**
      * @var string Loại article (chính là slug của root category)
@@ -90,11 +111,35 @@ class Article extends Model
     public $type;
 
     /**
+     * @return string
+     */
+    protected function resourceName()
+    {
+        return 'article';
+    }
+
+    /**
+     * @return string
+     */
+    protected function resourceTitle()
+    {
+        return trans('article::common.article');
+    }
+
+    /**
      * @return array Các attributes có thể insert image
      */
     public function imageables()
     {
         return ['content'];
+    }
+
+    /**
+     * @return array
+     */
+    public function actions()
+    {
+        return ['create', 'show', 'update', 'delete'];
     }
 
     /**
@@ -133,81 +178,6 @@ class Article extends Model
     }
 
     /**
-     * @param bool $full
-     *
-     * @return string
-     */
-    public function getImageDirectory($full = true)
-    {
-        return ($full ? public_path() : '') . '/' . setting('system.public_files') . '/' . config('article.images_dir');
-    }
-
-    /**
-     * @param null|string $image
-     *
-     * @return string
-     */
-    public function getImagePath($image = null)
-    {
-        return $this->getImageDirectory() . '/' . ($image ?: $this->image);
-    }
-
-    /**
-     * @param bool $small
-     * @param bool $no_image
-     *
-     * @return string|null
-     */
-    public function getImageUrl($small = false, $no_image = false)
-    {
-        if ($this->image) {
-            return $this->getImageDirectory(false) . '/' . ($small ? $this->getImageSmall() : $this->image);
-        } else {
-            return $no_image ? '/build/img/no-image.png' : null;
-        }
-    }
-
-    /**
-     * Thêm '-small' vào tên file hình
-     *
-     * @return string
-     */
-    public function getImageSmall()
-    {
-        return "sm-$this->image";
-    }
-
-    /**
-     * Xử lý image upload
-     * - SEO tên file, thêm date time
-     * - move đúng thư mục
-     * - nếu edit thì xóa file cũ
-     *
-     * @param \Minhbang\LaravelArticle\ArticleRequest $request
-     */
-    public function fillImage($request)
-    {
-        $this->image = save_image(
-            $request,
-            'image',
-            $this->image ? [$this->getImagePath(), $this->getImagePath($this->getImageSmall())] : null,
-            $this->getImageDirectory(),
-            [
-                'main' => [
-                    'width'  => setting('display.image_width_md'),
-                    'height' => setting('display.image_height_md'),
-                ],
-                'sm'   => [
-                    'width'  => setting('display.image_width_sm'),
-                    'height' => setting('display.image_height_sm'),
-                ],
-            ],
-            ['method' => 'fit'],
-            $this->image
-        );
-    }
-
-    /**
      * Hook các events của model
      *
      * @return void
@@ -219,10 +189,7 @@ class Article extends Model
         static::deleting(
             function ($model) {
                 /** @var static $model */
-                if ($model->image) {
-                    @unlink($model->getImagePath());
-                    @unlink($model->getImagePath($model->getImageSmall()));
-                }
+                $model->deleteFeaturedImage();
             }
         );
     }

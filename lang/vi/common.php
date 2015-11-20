@@ -11,7 +11,7 @@ return [
     'user'            => 'Người tạo',
     'category_id'     => 'Danh mục',
     'metadata'        => 'Đăng: :datetime — :hit lần xem',
-    'image'           => 'Hình đại diện',
+    'featured_image'  => 'Hình đại diện',
     'type'            => 'Loại Bài viết',
     'tags'            => 'Tags',
     'not_found'       => 'Không tìm thấy bài viết theo yêu cầu',
