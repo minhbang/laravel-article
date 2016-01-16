@@ -1,9 +1,14 @@
 <?php
 namespace Minhbang\Article;
 
-use Minhbang\AccessControl\Contracts\HasPermissionModel;
-use Minhbang\AccessControl\Traits\HasPermission;
-use Minhbang\AccessControl\Traits\HasPolicy;
+use Minhbang\AccessControl\Contracts\ResourceLevel;
+use Minhbang\AccessControl\Contracts\ResourceModel;
+use Minhbang\AccessControl\Contracts\ResourceStatus;
+use Minhbang\AccessControl\Traits\Resource\DefaultStatuses;
+use Minhbang\AccessControl\Traits\Resource\HasLevel;
+use Minhbang\AccessControl\Traits\Resource\HasPermission;
+use Minhbang\AccessControl\Traits\Resource\HasPolicy;
+use Minhbang\AccessControl\Traits\Resource\HasStatus;
 use Minhbang\Category\Categorized;
 use Minhbang\LaravelImage\ImageableModel as Model;
 use Laracasts\Presenter\PresentableTrait;
@@ -24,6 +29,7 @@ use Minhbang\LaravelUser\Support\UserQuery;
  * @property string $summary
  * @property string $content
  * @property integer $status
+ * @property integer $level
  * @property integer $hit
  * @property integer $user_id
  * @property integer $category_id
@@ -43,6 +49,7 @@ use Minhbang\LaravelUser\Support\UserQuery;
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereSummary($value)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereContent($value)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereStatus($value)
+ * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereLevel($value)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereHit($value)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereUserId($value)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article whereCategoryId($value)
@@ -74,7 +81,7 @@ use Minhbang\LaravelUser\Support\UserQuery;
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article withAllTags($tagNames)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article withAnyTag($tagNames)
  */
-class Article extends Model implements HasPermissionModel
+class Article extends Model implements ResourceModel, ResourceStatus, ResourceLevel
 {
     use AttributeQuery;
     use DatetimeQuery;
@@ -83,9 +90,12 @@ class Article extends Model implements HasPermissionModel
     use SearchQuery;
     use PresentableTrait;
     use TaggableTrait;
+    use FeaturedImage;
     use HasPolicy;
     use HasPermission;
-    use FeaturedImage;
+    use HasLevel;
+    use HasStatus;
+    use DefaultStatuses;
 
     protected $table = 'articles';
     protected $presenter = 'Minhbang\Article\Presenter';
@@ -139,7 +149,7 @@ class Article extends Model implements HasPermissionModel
      */
     public function actions()
     {
-        return ['create', 'show', 'update', 'delete'];
+        return ['create', 'show', 'update', 'delete', 'return', 'approve', 'publish'];
     }
 
     /**

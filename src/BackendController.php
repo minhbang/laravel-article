@@ -1,7 +1,7 @@
 <?php
 namespace Minhbang\Article;
 
-use Minhbang\AccessControl\Traits\HasAccessControl;
+use Minhbang\AccessControl\Traits\Controller\HasAccessControl;
 use Minhbang\LaravelKit\Extensions\BackendController as BaseController;
 use Minhbang\LaravelKit\Traits\Controller\QuickUpdateActions;
 use Minhbang\Article\Request as ArticleRequest;
@@ -37,7 +37,7 @@ class BackendController extends BaseController
      */
     public function __construct()
     {
-        parent::__construct(config('article.middlewares.backend'));
+        parent::__construct();
         $this->types = config('article.types');
         $this->switchType();
     }
@@ -149,8 +149,8 @@ class BackendController extends BaseController
                 'actions',
                 function (Article $model) {
                     return Html::tableActions(
-                        'backend/article',
-                        $model->id,
+                        'backend.article',
+                        ['article' => $model->id],
                         $model->title,
                         $this->typeManager->typeName(),
                         [
@@ -312,7 +312,7 @@ class BackendController extends BaseController
     }
 
     /**
-     * Các attributes cho phéo quick-update
+     * Các attributes cho phép quick-update
      *
      * @return array
      */

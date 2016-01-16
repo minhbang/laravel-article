@@ -19,7 +19,7 @@ class Presenter extends BasePresenter
      */
     public function summary()
     {
-        return mb_string_limit($this->entity->summary, setting('display.summary_limit'));
+        return str_limit($this->entity->summary, setting('display.summary_limit'));
     }
 
     /**
