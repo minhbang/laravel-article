@@ -3,7 +3,7 @@
 namespace Minhbang\Article;
 
 use Illuminate\Routing\Router;
-use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Minhbang\Kit\Extensions\BaseServiceProvider;
 
 /**
  * Class ServiceProvider
@@ -16,6 +16,7 @@ class ServiceProvider extends BaseServiceProvider
      * Perform post-registration booting of services.
      *
      * @param \Illuminate\Routing\Router $router
+     *
      * @return void
      */
     public function boot(Router $router)
@@ -24,18 +25,22 @@ class ServiceProvider extends BaseServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../views', 'article');
         $this->publishes(
             [
-                __DIR__ . '/../views'                           => base_path('resources/views/vendor/article'),
-                __DIR__ . '/../lang'                            => base_path('resources/lang/vendor/article'),
-                __DIR__ . '/../config/article.php'             => config_path('article.php'),
-                __DIR__ . '/../database/migrations/' .
-                '2015_09_18_161102_create_articles_table.php' =>
-                    database_path('migrations/2015_09_18_161102_create_articles_table.php'),
+                __DIR__ . '/../views'              => base_path('resources/views/vendor/article'),
+                __DIR__ . '/../lang'               => base_path('resources/lang/vendor/article'),
+                __DIR__ . '/../config/article.php' => config_path('article.php'),
             ]
         );
 
-        if (config('article.add_route') && !$this->app->routesAreCached()) {
-            require __DIR__ . '/routes.php';
-        }
+        $this->publishes(
+            [
+                __DIR__ . '/../database/migrations/2015_09_18_161102_create_articles_table.php' =>
+                    database_path('migrations/2015_09_18_161102_create_articles_table.php'),
+            ],
+            'db'
+        );
+
+        $this->mapWebRoutes($router, __DIR__ . '/routes.php', config('article.add_route'));
+        
         // pattern filters
         $router->pattern('article', '[0-9]+');
         // model bindings
