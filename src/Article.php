@@ -1,15 +1,22 @@
 <?php
 namespace Minhbang\Article;
 
-use Illuminate\Database\Eloquent\Collection;
+use Minhbang\AccessControl\Contracts\ResourceLevel;
+use Minhbang\AccessControl\Contracts\ResourceModel;
+use Minhbang\AccessControl\Contracts\ResourceStatus;
+use Minhbang\AccessControl\Traits\Resource\DefaultStatuses;
+use Minhbang\AccessControl\Traits\Resource\HasLevel;
+use Minhbang\AccessControl\Traits\Resource\HasPermission;
+use Minhbang\AccessControl\Traits\Resource\HasPolicy;
+use Minhbang\AccessControl\Traits\Resource\HasStatus;
 use Minhbang\Category\Categorized;
 use Minhbang\Image\ImageableModel as Model;
+use Laracasts\Presenter\PresentableTrait;
 use Minhbang\Kit\Traits\Model\AttributeQuery;
 use Minhbang\Kit\Traits\Model\DatetimeQuery;
 use Minhbang\Kit\Traits\Model\FeaturedImage;
 use Minhbang\Kit\Traits\Model\SearchQuery;
 use Minhbang\Kit\Traits\Model\TaggableTrait;
-use Minhbang\Security\AccessControllable;
 use Minhbang\User\Support\UserQuery;
 
 /**
@@ -31,7 +38,7 @@ use Minhbang\User\Support\UserQuery;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read mixed $url
- * @property-read string $author
+ * @property-read mixed $resource_name
  * @property-read \Minhbang\User\User $user
  * @property-read \Minhbang\Category\Category $category
  * @property mixed $tags
@@ -73,22 +80,27 @@ use Minhbang\User\Support\UserQuery;
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article orderByMatchedTag($tagNames, $direction = 'desc')
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article withAllTags($tagNames)
  * @method static \Illuminate\Database\Query\Builder|\Minhbang\Article\Article withAnyTag($tagNames)
- * @mixin \Eloquent
  */
-class Article extends Model
+class Article extends Model implements ResourceModel, ResourceStatus, ResourceLevel
 {
     use AttributeQuery;
     use DatetimeQuery;
     use Categorized;
     use UserQuery;
     use SearchQuery;
+    use PresentableTrait;
     use TaggableTrait;
     use FeaturedImage;
-    use AccessControllable;
+    use HasPolicy;
+    use HasPermission;
+    use HasLevel;
+    use HasStatus;
+    use DefaultStatuses;
 
     protected $table = 'articles';
+    protected $presenter = 'Minhbang\Article\Presenter';
+    protected $policy_class = 'Minhbang\AccessControl\Policies\StatusBasedPolicy';
     protected $fillable = ['title', 'slug', 'summary', 'content', 'category_id', 'tags'];
-    protected $dates = ['published_at'];
 
     /**
      * Article constructor.
@@ -104,11 +116,40 @@ class Article extends Model
     }
 
     /**
+     * @var string Loại article (chính là slug của root category)
+     */
+    public $type;
+
+    /**
+     * @return string
+     */
+    protected function resourceName()
+    {
+        return 'article';
+    }
+
+    /**
+     * @return string
+     */
+    protected function resourceTitle()
+    {
+        return trans('article::common.article');
+    }
+
+    /**
      * @return array Các attributes có thể insert image
      */
     public function imageables()
     {
         return ['content'];
+    }
+
+    /**
+     * @return array
+     */
+    public function actions()
+    {
+        return ['create', 'show', 'update', 'delete', 'return', 'approve', 'publish'];
     }
 
     /**
@@ -123,18 +164,22 @@ class Article extends Model
 
     /**
      * Url xem Bài viết
-     * getter $this->url
      *
-     * @return string
+     * @return string $article->url
      */
     public function getUrlAttribute()
     {
-        return route('article.show', ['article' => $this->id, 'slug' => $this->slug]);
+        if (empty($this->type)) {
+            return route('article.show', ['article' => $this->id, 'slug' => $this->slug]);
+        } else {
+            return route(
+                'article.show_with_type',
+                ['article' => $this->id, 'slug' => $this->slug, 'type' => $this->type]
+            );
+        }
     }
 
     /**
-     * setter $this->content = $value
-     *
      * @param string $value
      */
     public function setContentAttribute($value)
@@ -143,22 +188,19 @@ class Article extends Model
     }
 
     /**
-     * Lấy danh sách bài viết liên quan, tiêu chí:
-     * - Cùng root category
-     * - có liên quan về tags
-     * - Sắp xếp theo số lượng tags giống nhau
+     * Hook các events của model
      *
-     * @param int $take
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return void
      */
-    public function getRelated($take = 5)
+    public static function boot()
     {
-        if (($category = $this->category) && ($tagNames = $this->tagNames())) {
-            return Article::queryDefault()->take($take)->categorized($category->getRoot())->except($this->id)
-                ->withAnyTag($tagNames)->orderByMatchedTag($tagNames)->orderUpdated()->get();
-        } else {
-            return new Collection();
-        }
+        parent::boot();
+        // trước khi xóa $model, sẽ xóa hình đại diện của nó
+        static::deleting(
+            function ($model) {
+                /** @var static $model */
+                $model->deleteFeaturedImage();
+            }
+        );
     }
 }

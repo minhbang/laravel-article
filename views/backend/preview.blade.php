@@ -2,7 +2,7 @@
 @section('content')
     <div class="article-page">
         <div class="meta-top">
-            {{ $html->formatDatetime($article->updated_at) }}
+            {{ $article->present()->updatedAt }}
         </div>
         <div class="page-header">
             <h1>{{$article->title}}</h1>

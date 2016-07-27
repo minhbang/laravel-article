@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+@extends('backend.layouts.main')
 @section('content')
     {!! Form::model($article, ['files' => true, 'url'=>$url, 'method' => $method]) !!}
     <div class="row">
@@ -11,41 +11,41 @@
                     </div>
                 </div>
                 <div class="ibox-content">
-                    <div class="form-group{{ $errors->has("title") ? ' has-error':'' }}">
-                        {!! Form::label("title", trans('article::common.title'), ['class' => "control-label"]) !!}
-                        {!! Form::text("title", $article->title, ['class' => 'has-slug form-control','data-slug_target' => "#title-slug"]) !!}
-                        @if($errors->has("title"))
-                            <p class="help-block">{{ $errors->first("title") }}</p>
-                        @endif
-                    </div>
-                    <div class="form-group{{ $errors->has("slug") ? ' has-error':'' }}">
-                        {!! Form::label("slug", trans('article::common.slug'), ['class' => "control-label"]) !!}
-                        {!! Form::text("slug", $article->slug, ['id'=>"title-slug", 'class' => 'form-control']) !!}
-                        @if($errors->has("slug"))
-                            <p class="help-block">{{ $errors->first("slug") }}</p>
-                        @endif
-                    </div>
-                    <div class="form-group{{ $errors->has("summary") ? ' has-error':'' }}">
-                        {!! Form::label("summary", trans('article::common.summary'), ['class' => "control-label"]) !!}
-                        {!! Form::textarea("summary", $article->summary, ['class' => 'form-control']) !!}
-                        @if($errors->has("summary"))
-                            <p class="help-block">{{ $errors->first("summary") }}</p>
-                        @endif
-                    </div>
-                    <div class="form-group{{ $errors->has("content") ? ' has-error':'' }}">
-                        {!! Form::label("content", trans('article::common.content'), ['class' => "control-label"]) !!}
-                        {!! Form::textarea("content", $article->content, [
-                            'class' => 'form-control wysiwyg',
-                            'data-editor' => 'full',
-                            'data-height' => 500,
-                            'data-attribute' => 'content',
-                            'data-resource' => 'article',
-                            'data-id' => $article->id
-                        ]) !!}
-                        @if($errors->has("content"))
-                            <p class="help-block">{{ $errors->first("content") }}</p>
-                        @endif
-                    </div>
+                            <div class="form-group{{ $errors->has("title") ? ' has-error':'' }}">
+                                {!! Form::label("title", trans('article::common.title'), ['class' => "control-label"]) !!}
+                                {!! Form::text("title", $article->title, ['class' => 'has-slug form-control','data-slug_target' => "#title-slug"]) !!}
+                                @if($errors->has("title"))
+                                    <p class="help-block">{{ $errors->first("title") }}</p>
+                                @endif
+                            </div>
+                            <div class="form-group{{ $errors->has("slug") ? ' has-error':'' }}">
+                                {!! Form::label("slug", trans('article::common.slug'), ['class' => "control-label"]) !!}
+                                {!! Form::text("slug", $article->slug, ['id'=>"title-slug", 'class' => 'form-control']) !!}
+                                @if($errors->has("slug"))
+                                    <p class="help-block">{{ $errors->first("slug") }}</p>
+                                @endif
+                            </div>
+                            <div class="form-group{{ $errors->has("summary") ? ' has-error':'' }}">
+                                {!! Form::label("summary", trans('article::common.summary'), ['class' => "control-label"]) !!}
+                                {!! Form::textarea("summary", $article->summary, ['class' => 'form-control']) !!}
+                                @if($errors->has("summary"))
+                                    <p class="help-block">{{ $errors->first("summary") }}</p>
+                                @endif
+                            </div>
+                            <div class="form-group{{ $errors->has("content") ? ' has-error':'' }}">
+                                {!! Form::label("content", trans('article::common.content'), ['class' => "control-label"]) !!}
+                                {!! Form::textarea("content", $article->content, [
+                                    'class' => 'form-control wysiwyg',
+                                    'data-editor' => 'full',
+                                    'data-height' => 500,
+                                    'data-attribute' => 'content',
+                                    'data-resource' => 'article',
+                                    'data-id' => $article->id
+                                ]) !!}
+                                @if($errors->has("content"))
+                                    <p class="help-block">{{ $errors->first("content") }}</p>
+                                @endif
+                            </div>
                 </div>
             </div>
         </div>
@@ -68,10 +68,6 @@
                             <div class="form-group">
                                 {!! Form::label('tags', trans('article::common.tags'), ['class' => 'control-label']) !!}
                                 {!! Form::text('tags', $tags, ['data-options'=>$allTags, 'prompt' =>'', 'class' => 'form-control selectize-tags']) !!}
-                            </div>
-                            <div class="form-group">
-                                {!! Form::label('s', trans('common.status'), ['class' => 'control-label']) !!}
-                                {!! $html->status($article, '#', 's') !!}
                             </div>
                         </div>
                         <div class="col-lg-12 col-md-5">

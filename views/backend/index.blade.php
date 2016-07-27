@@ -1,9 +1,10 @@
-@extends('backend.layouts.master')
+@extends('backend.layouts.main')
 @section('content')
 <div id="article-manage-tools" class="hidden">
     <div class="dataTables_toolbar">
         {!! Html::linkButton('#', trans('common.search'), ['class'=>'advanced_search_collapse','type'=>'info', 'size'=>'xs', 'icon' => 'search']) !!}
         {!! Html::linkButton('#', trans('common.all'), ['class'=>'filter-clear', 'type'=>'warning', 'size'=>'xs', 'icon' => 'list']) !!}
+        {!! Html::linkButton(route('backend.article.create'), trans('common.create'), ['type'=>'success', 'size'=>'xs', 'icon' => 'plus-sign']) !!}
     </div>
     <div class="bg-warning dataTables_advanced_search">
         <form class="form-horizontal" role="form">
@@ -32,6 +33,7 @@
 <div class="ibox ibox-table">
     <div class="ibox-title">
         <h5>{!! trans('article::common.manage_title', ['name' => $typeName]) !!}</h5>
+        <div class="ibox-tools"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></div>
     </div>
     <div class="ibox-content">
     {!! $table->render('_datatable') !!}
@@ -45,9 +47,6 @@
             oTable.find('a.quick-update').quickUpdate({
                 url: '{{ route('backend.article.quick_update', ['article' => '__ID__']) }}',
                 container: '#article-manage',
-                dataTable: oTable
-            });
-            oTable.find('select.select-btngroup').select_btngroup({
                 dataTable: oTable
             });
         };

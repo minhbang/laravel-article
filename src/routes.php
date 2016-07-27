@@ -1,54 +1,24 @@
 <?php
-// Frontend
-/*Route::group(
-    ['prefix' => 'article', 'namespace' => 'Minhbang\Article\Controllers', 'as' => 'article.', 'middleware' => config('article.middlewares.frontend')],
+Route::group(
+    ['prefix' => 'article', 'namespace' => 'Minhbang\Article', 'as' => 'article.'],
     function () {
         Route::get('{slug}', ['as' => 'index', 'uses' => 'FrontendController@index']);
-        Route::get('{slug}/category/{category}', ['as' => 'category', 'uses' => 'FrontendController@category']);
         Route::get('{article}/{slug}', ['as' => 'show', 'uses' => 'FrontendController@show']);
-    }
-);*/
-
-// Backend: Admin quản lý articles
-Route::group(
-    ['prefix' => 'backend', 'namespace' => 'Minhbang\Article\Controllers'],
-    function () {
-        Route::group(
-            ['middleware' => config('article.middlewares.backend')],
-            function () {
-                Route::group(
-                    ['prefix' => 'article', 'as' => 'backend.article.'],
-                    function () {
-                        Route::get('of/{type}', ['as' => 'type', 'uses' => 'BackendController@index']);
-                        Route::get('data', ['as' => 'data', 'uses' => 'BackendController@data']);
-                        Route::get('{article}/preview', ['as' => 'preview', 'uses' => 'BackendController@preview']);
-                        Route::post('{article}/quick_update', ['as' => 'quick_update', 'uses' => 'BackendController@quickUpdate']);
-                        Route::post('{article}/status/{status}', ['as' => 'status', 'uses' => 'BackendController@status']);
-                    }
-                );
-                Route::resource('article', 'BackendController');
-            }
-        );
+        Route::get('{type}/{article}/{slug}', ['as' => 'show_with_type', 'uses' => 'FrontendController@show_with_type']);
     }
 );
 
-// Manage: User quản lý articles
 Route::group(
-    ['prefix' => 'manage', 'namespace' => 'Minhbang\Article\Controllers'],
+    ['prefix' => 'backend', 'namespace' => 'Minhbang\Article'],
     function () {
         Route::group(
-            ['middleware' => config('article.middlewares.manage')],
+            ['prefix' => 'article', 'as' => 'backend.article.'],
             function () {
-                Route::group(
-                    ['prefix' => 'article', 'as' => 'manage.article.'],
-                    function () {
-                        Route::get('of/{type}', ['as' => 'index', 'uses' => 'ManageController@index']);
-                        Route::get('data', ['as' => 'data', 'uses' => 'ManageController@data']);
-                        Route::get('{article}/preview', ['as' => 'preview', 'uses' => 'ManageController@preview']);
-                    }
-                );
-                Route::resource('article', 'ManageController', ['except' => 'index']);
-            }
-        );
+                Route::get('of/{type}', ['as' => 'type', 'uses' => 'BackendController@index']);
+                Route::get('data', ['as' => 'data', 'uses' => 'BackendController@data']);
+                Route::get('{article}/preview', ['as' => 'preview', 'uses' => 'BackendController@preview']);
+                Route::post('{article}/quick_update', ['as' => 'quick_update', 'uses' => 'BackendController@quickUpdate']);
+            });
+        Route::resource('article', 'BackendController');
     }
 );
