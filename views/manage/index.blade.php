@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+@extends('manage.layouts.master')
 @section('content')
 <div id="article-manage-tools" class="hidden">
     <div class="dataTables_toolbar">
@@ -42,11 +42,6 @@
 @section('script')
     <script type="text/javascript">
         function datatableDrawCallback(oTable) {
-            oTable.find('a.quick-update').quickUpdate({
-                url: '{{ route('backend.article.quick_update', ['article' => '__ID__']) }}',
-                container: '#article-manage',
-                dataTable: oTable
-            });
             oTable.find('select.select-btngroup').select_btngroup({
                 dataTable: oTable
             });
@@ -56,7 +51,7 @@
         '_datatable_script',
         [
             'name' => $typeName,
-            'data_url' => route('backend.article.data'),
+            'data_url' => route('manage.article.data'),
             'drawCallback' => 'window.datatableDrawCallback'
         ]
     )

@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+@extends('manage.layouts.master')
 @section('content')
     <div class="row">
         <div class="col-lg-7">

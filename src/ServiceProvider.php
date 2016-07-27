@@ -4,6 +4,9 @@ namespace Minhbang\Article;
 
 use Illuminate\Routing\Router;
 use Minhbang\Kit\Extensions\BaseServiceProvider;
+use CategoryManager;
+use AccessControl;
+use MenuManager;
 
 /**
  * Class ServiceProvider
@@ -40,11 +43,14 @@ class ServiceProvider extends BaseServiceProvider
         );
 
         $this->mapWebRoutes($router, __DIR__ . '/routes.php', config('article.add_route'));
-        
+        $class = Article::class;
         // pattern filters
         $router->pattern('article', '[0-9]+');
         // model bindings
-        $router->model('article', 'Minhbang\Article\Article');
+        $router->model('article', $class);
+        AccessControl::register($class, config('article.access_control'));
+        CategoryManager::register($class, config('article.category'), config('article.types'));
+        MenuManager::addItems(config('article.menus'));
     }
 
     /**

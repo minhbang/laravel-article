@@ -10,9 +10,15 @@ return [
     'content'         => 'Nội dung',
     'user'            => 'Người tạo',
     'category_id'     => 'Danh mục',
-    'metadata'        => 'Đăng: :datetime — :hit lần xem',
+    'meta'            => ':datetime — :hit lần xem',
     'featured_image'  => 'Hình đại diện',
-    'type'            => 'Loại Bài viết',
     'tags'            => 'Tags',
-    'not_found'       => 'Không tìm thấy bài viết theo yêu cầu',
+    'not_found'       => 'Không tìm thấy bài viết theo yêu cầu!',
+    'empty'           => 'Chưa có :type được đăng trong mục này!',
+    'invalid_type'    => 'Không tìm thấy loại Bài viết này!',
+    'type'            => 'Loại Bài viết',
+    'types'           => [
+        'page' => 'Trang',
+        'news' => 'Tin tức',
+    ],
 ];

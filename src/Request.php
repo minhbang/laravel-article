@@ -1,7 +1,7 @@
 <?php
 namespace Minhbang\Article;
 
-use Minhbang\LaravelKit\Extensions\Request as BaseRequest;
+use Minhbang\Kit\Extensions\Request as BaseRequest;
 
 /**
  * Class Request

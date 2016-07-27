@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+@extends('manage.layouts.master')
 @section('content')
     {!! Form::model($article, ['files' => true, 'url'=>$url, 'method' => $method]) !!}
     <div class="row">
