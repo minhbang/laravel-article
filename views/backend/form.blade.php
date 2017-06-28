@@ -67,12 +67,16 @@
                             </div>
                             <div class="form-group">
                                 {!! Form::label('tags', trans('article::common.tags'), ['class' => 'control-label']) !!}
-                                {!! Form::text('tags', $tags, ['data-options'=>$allTags, 'prompt' =>'', 'class' => 'form-control selectize-tags']) !!}
+                                {!! Form::text('tag_names', null, ['data-options'=>$allTags, 'prompt' =>'', 'class' => 'form-control selectize-tags']) !!}
                             </div>
-                            <div class="form-group">
-                                {!! Form::label('s', trans('common.status'), ['class' => 'control-label']) !!}
-                                {!! $html->status($article, '#', 's') !!}
+                            <div class="form-group{{ $errors->has('status') ? ' has-error':'' }}">
+                                {!! Form::label('status',  trans('ebook::common.status'), ['class'=> 'control-label']) !!}
+                                {!! Form::select('status', $selectize_statuses, null, ['id' => 'selectize-status', 'class' => 'form-control']) !!}
+                                @if($errors->has('status'))
+                                    <p class="help-block">{{ $errors->first('status') }}</p>
+                                @endif
                             </div>
+
                         </div>
                         <div class="col-lg-12 col-md-5">
                             <div class="form-group form-image{{ $errors->has('image') ? ' has-error':'' }}">
@@ -102,20 +106,21 @@
         </div>
     </div>
     {!! Form::close() !!}
-@stop
+@endsection
 
-@section('script')
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('.wysiwyg').mbEditor({
-                //upload image
-                imageUploadURL: '{!! route('image.store') !!}',
-                imageMaxSize: {{setting('system.max_image_size') * 1024 * 1024 }}, //bytes
-                // load image
-                imageManagerLoadURL: '{!! route('image.data') !!}',
-                // custom options
-                imageDeleteURL: '{!! route('image.delete') !!}'
-            });
+@push('scripts')
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#selectize-status').selectize_status();
+        $('.wysiwyg').mbEditor({
+            //upload image
+            imageUploadURL: '{!! route('image.store') !!}',
+            imageMaxSize: {{setting('system.max_image_size') * 1024 * 1024 }}, //bytes
+            // load image
+            imageManagerLoadURL: '{!! route('image.data') !!}',
+            // custom options
+            imageDeleteURL: '{!! route('image.delete') !!}'
         });
-    </script>
-@stop
+    });
+</script>
+@endpush

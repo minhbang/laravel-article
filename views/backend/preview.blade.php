@@ -1,8 +1,9 @@
 @extends('backend.layouts.modal')
 @section('content')
+    @php /** @var \Minhbang\Article\Presenter $presenter */  @endphp
     <div class="article-page">
         <div class="meta-top">
-            {{ $html->formatDatetime($article->updated_at) }}
+            {{ $presenter->formatDatetime($article->updated_at) }}
         </div>
         <div class="page-header">
             <h1>{{$article->title}}</h1>

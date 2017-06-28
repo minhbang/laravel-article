@@ -1,16 +1,19 @@
 <?php
+
 namespace Minhbang\Article\Controllers;
 
+use Minhbang\Article\ArticleTransformer;
 use Minhbang\Kit\Extensions\BackendController as BaseController;
 use Minhbang\Kit\Traits\Controller\QuickUpdateActions;
 use Minhbang\Article\Request as ArticleRequest;
 use Request;
 use Session;
 use Response;
-use View;
 use Minhbang\Article\Article;
 use CategoryManager;
-use MenuManager;
+use Minhbang\Kit\Extensions\DatatableBuilder as Builder;
+use Datatables;
+use Status;
 
 /**
  * Class BackendController
@@ -22,17 +25,7 @@ class BackendController extends BaseController
 {
     use QuickUpdateActions;
     /**
-     * @var \Minhbang\Article\Html
-     */
-    protected $html;
-
-    /**
-     * @var \Minhbang\Article\Article
-     */
-    protected $model;
-
-    /**
-     * @var \Minhbang\Category\Type
+     * @var \Minhbang\Category\Root
      */
     public $categoryManager;
     /**
@@ -44,53 +37,54 @@ class BackendController extends BaseController
 
     /**
      * BackendController constructor.
-     *
-     * @param \Minhbang\Article\Article $article
      */
-    public function __construct(Article $article)
+    public function __construct()
     {
         parent::__construct();
-        $this->model = $article;
         $this->categoryManager = CategoryManager::of(Article::class);
         $this->types = config('article.types');
-        
     }
 
     /**
-     * @return \Minhbang\Article\Datatable
-     */
-    protected function getDatatable()
-    {
-        return $this->newClassInstance(config('article.datatable'), $this);
-    }
-
-    /**
-     * Init web actions
-     */
-    protected function initWeb()
-    {
-        parent::initWeb();
-        $this->html = $this->newClassInstance(config('article.html'));
-        View::share('html', $this->html);
-    }
-
-    /**
+     * @param \Minhbang\Kit\Extensions\DatatableBuilder $builder
+     *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Builder $builder)
     {
-        $this->getDatatable()->share('backend');
-        $typeName = $this->categoryManager->title();
+        $typeName = $this->categoryManager->typeName();
         $this->buildHeading(
             [trans('common.manage'), $typeName],
             'fa-newspaper-o',
-            ['#' => $typeName],
-            [
-                [route($this->route_prefix . 'backend.article.create'), trans('common.create'), ['type' => 'success', 'icon' => 'plus-sign']],
-            ]
+            ['#' => $typeName]
         );
+        $builder->ajax(route('backend.article.data'));
 
-        return view('article::backend.index', compact('typeName'));
+        $html = $builder->columns([
+            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'class' => 'min-width text-center'],
+            [
+                'data'  => 'title',
+                'name'  => 'title',
+                'title' => trans('article::common.title'),
+            ],
+            ['data' => 'author', 'name' => 'author', 'title' => trans('article::common.user'), 'class' => 'min-width',],
+            [
+                'data'       => 'status',
+                'name'       => 'status',
+                'title'      => trans('common.status'),
+                'class'      => 'min-width',
+                'orderable'  => false,
+                'searchable' => false,
+            ],
+
+        ])->addAction([
+            'data'  => 'actions',
+            'name'  => 'actions',
+            'title' => trans('common.actions'),
+            'class' => 'min-width',
+        ]);
+
+        return view('article::backend.index', compact('typeName', 'html'));
     }
 
 
@@ -101,14 +95,15 @@ class BackendController extends BaseController
      */
     public function data()
     {
-        $query = Article::queryDefault()->withAuthor()->orderUpdated()->categorized($this->categoryManager->root());
+        // TODOL giải quyết mặc định order updated: ->orderUpdated()
+        $query = Article::queryDefault()->withAuthor()->orderUpdated()->categorized($this->categoryManager->node());
         if (Request::has('search_form')) {
             $query = $query
                 ->searchWhereBetween('articles.created_at', 'mb_date_vn2mysql')
                 ->searchWhereBetween('articles.updated_at', 'mb_date_vn2mysql');
         }
 
-        return $this->getDatatable()->make('backend', $query);
+        return Datatables::of($query)->setTransformer(new ArticleTransformer())->make(true);
     }
 
     /**
@@ -117,13 +112,13 @@ class BackendController extends BaseController
      */
     public function create()
     {
-        $article = $this->model;
+        $article = new Article();
         $url = route('backend.article.store');
         $method = 'post';
-        $tags = '';
-        $allTags = Article::allTagNames();
-        $typeName = $this->categoryManager->title();
+        $allTags = Article::usedTagNames();
+        $typeName = $this->categoryManager->typeName();
         $categories = $this->categoryManager->selectize();
+        $selectize_statuses = Status::of( Article::class )->groupByLevel();
         $this->buildHeading(
             [trans('common.create'), $typeName],
             'plus-sign',
@@ -133,10 +128,7 @@ class BackendController extends BaseController
             ]
         );
 
-        return view(
-            'article::backend.form',
-            compact('article', 'url', 'method', 'tags', 'allTags', 'categories')
-        );
+        return view('article::backend.form', compact('article', 'url', 'method', 'allTags', 'categories', 'selectize_statuses'));
     }
 
     /**
@@ -146,17 +138,17 @@ class BackendController extends BaseController
      */
     public function store(ArticleRequest $request)
     {
-        $article = $this->model;
+        $article = new Article();
         $article->fill($request->all());
         $article->fillFeaturedImage($request);
         $article->user_id = user('id');
-        $article->fillStatus($request->get('s'));
+        //$article->fillStatus($request->get('s'));
         $article->save();
         Session::flash(
             'message',
             [
                 'type'    => 'success',
-                'content' => trans('common.create_object_success', ['name' => $this->categoryManager->title()]),
+                'content' => trans('common.create_object_success', ['name' => $this->categoryManager->typeName()]),
             ]
         );
 
@@ -170,7 +162,8 @@ class BackendController extends BaseController
      */
     public function show(Article $article)
     {
-        $typeName = $this->categoryManager->title();
+        $presenter = $this->newClassInstance(config('article.presenter'));
+        $typeName = $this->categoryManager->typeName();
         $this->buildHeading(
             [trans('common.view_detail'), $typeName],
             'list',
@@ -187,7 +180,7 @@ class BackendController extends BaseController
             ]
         );
 
-        return view('article::backend.show', compact('article', 'typeName'));
+        return view('article::backend.show', compact('article', 'typeName', 'presenter'));
     }
 
     /**
@@ -197,7 +190,8 @@ class BackendController extends BaseController
      */
     public function preview(Article $article)
     {
-        return view('article::backend.preview', compact('article'));
+        $presenter = $this->newClassInstance(config('article.presenter'));
+        return view('article::backend.preview', compact('article', 'presenter'));
     }
 
     /**
@@ -209,10 +203,10 @@ class BackendController extends BaseController
     {
         $url = route('backend.article.update', ['article' => $article->id]);
         $method = 'put';
-        $tags = implode(',', $article->tagNames());
-        $allTags = Article::allTagNames();
-        $typeName = $this->categoryManager->title();
+        $allTags = Article::usedTagNames();
+        $typeName = $this->categoryManager->typeName();
         $categories = $this->categoryManager->selectize();
+        $selectize_statuses = Status::of( Article::class )->groupByLevel();
         $this->buildHeading(
             [trans('common.update'), $typeName],
             'edit',
@@ -222,10 +216,7 @@ class BackendController extends BaseController
             ]
         );
 
-        return view(
-            'article::backend.form',
-            compact('article', 'categories', 'url', 'method', 'tags', 'allTags')
-        );
+        return view('article::backend.form', compact('article', 'categories', 'url', 'method', 'allTags', 'selectize_statuses'));
     }
 
     /**
@@ -238,13 +229,13 @@ class BackendController extends BaseController
     {
         $article->fill($request->all());
         $article->fillFeaturedImage($request);
-        $article->fillStatus($request->get('s'));
+        //$article->fillStatus($request->get('s'));
         $article->save();
         Session::flash(
             'message',
             [
                 'type'    => 'success',
-                'content' => trans('common.update_object_success', ['name' => $this->categoryManager->title()]),
+                'content' => trans('common.update_object_success', ['name' => $this->categoryManager->typeName()]),
             ]
         );
 
@@ -264,7 +255,7 @@ class BackendController extends BaseController
         return Response::json(
             [
                 'type'    => 'success',
-                'content' => trans('common.delete_object_success', ['name' => $this->categoryManager->title()]),
+                'content' => trans('common.delete_object_success', ['name' => $this->categoryManager->typeName()]),
             ]
         );
     }
@@ -275,12 +266,13 @@ class BackendController extends BaseController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function status(Article $article, $status)
+    /*public function status(Article $article, $status)
     {
-        $result = $article->updateStatus($status, false, 'published_at') ? 'success' : 'error';
+        //$result = $article->updateStatus($status, false, 'published_at') ? 'success' : 'error';
+        $result = 'success';
 
         return Response::json(['type' => $result, 'content' => trans("common.status_{$result}")]);
-    }
+    }*/
 
     /**
      * Các attributes cho phép quick-update

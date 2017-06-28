@@ -1,4 +1,5 @@
 <?php
+
 namespace Minhbang\Article;
 
 use Minhbang\Kit\Extensions\Request as BaseRequest;
@@ -6,6 +7,7 @@ use Minhbang\Kit\Extensions\Request as BaseRequest;
 /**
  * Class Request
  *
+ * @property-read \Minhbang\Article\Article $article
  * @package Minhbang\Article
  */
 class Request extends BaseRequest
@@ -37,13 +39,13 @@ class Request extends BaseRequest
      */
     public function rules()
     {
-        /** @var \Minhbang\Article\Article $article */
-        if ($article = $this->route('article')) {
+        if ($this->article) {
             // update
         } else {
             // create
             $this->rules['image'] .= '|required';
         }
+
         return $this->rules;
     }
 

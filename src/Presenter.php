@@ -1,19 +1,18 @@
 <?php
 namespace Minhbang\Article;
-
 use Minhbang\Kit\Extensions\Html\DatetimeHtml;
-use Minhbang\Security\AccessControllableHtml;
+use Minhbang\Status\StatusPresenter;
+
 
 /**
- * Class Html
+ * Class Presenter
  *
  * @package Minhbang\Article
  */
-class Html
+class Presenter
 {
     use DatetimeHtml;
-    use AccessControllableHtml;
-
+    use StatusPresenter;
     /**
      * @param \Minhbang\Article\Article $article
      * @param string $classes

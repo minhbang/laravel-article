@@ -19,7 +19,7 @@ class Controller extends BackendController
      */
     protected $zone;
     /**
-     * @var \Minhbang\Article\Html
+     * @var \Minhbang\Article\Presenter
      */
     protected $html;
     /**

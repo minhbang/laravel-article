@@ -1,20 +1,21 @@
-<?php
-
-namespace Minhbang\Article;
+<?php namespace Minhbang\Article;
 
 use Illuminate\Routing\Router;
-use Minhbang\Kit\Extensions\BaseServiceProvider;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use CategoryManager;
-use AccessControl;
 use MenuManager;
+use Authority;
+use Kit;
+use Status;
+use Minhbang\Status\Managers\Simple;
 
 /**
  * Class ServiceProvider
  *
  * @package Minhbang\Article
  */
-class ServiceProvider extends BaseServiceProvider
-{
+class ServiceProvider extends BaseServiceProvider {
     /**
      * Perform post-registration booting of services.
      *
@@ -22,35 +23,36 @@ class ServiceProvider extends BaseServiceProvider
      *
      * @return void
      */
-    public function boot(Router $router)
-    {
-        $this->loadTranslationsFrom(__DIR__ . '/../lang', 'article');
-        $this->loadViewsFrom(__DIR__ . '/../views', 'article');
+    public function boot( Router $router ) {
+        $this->loadTranslationsFrom( __DIR__ . '/../lang', 'article' );
+        $this->loadViewsFrom( __DIR__ . '/../views', 'article' );
+        $this->loadMigrationsFrom( __DIR__ . '/../database/migrations' );
+        $this->loadRoutesFrom( __DIR__ . '/routes.php' );
+
         $this->publishes(
             [
-                __DIR__ . '/../views'              => base_path('resources/views/vendor/article'),
-                __DIR__ . '/../lang'               => base_path('resources/lang/vendor/article'),
-                __DIR__ . '/../config/article.php' => config_path('article.php'),
+                __DIR__ . '/../views'              => base_path( 'resources/views/vendor/article' ),
+                __DIR__ . '/../lang'               => base_path( 'resources/lang/vendor/article' ),
+                __DIR__ . '/../config/article.php' => config_path( 'article.php' ),
             ]
         );
 
-        $this->publishes(
-            [
-                __DIR__ . '/../database/migrations/2015_09_18_161102_create_articles_table.php' =>
-                    database_path('migrations/2015_09_18_161102_create_articles_table.php'),
-            ],
-            'db'
-        );
-
-        $this->mapWebRoutes($router, __DIR__ . '/routes.php', config('article.add_route'));
         $class = Article::class;
         // pattern filters
-        $router->pattern('article', '[0-9]+');
+        $router->pattern( 'article', '[0-9]+' );
         // model bindings
-        $router->model('article', $class);
-        AccessControl::register($class, config('article.access_control'));
-        CategoryManager::register($class, config('article.category'), config('article.types'));
-        MenuManager::addItems(config('article.menus'));
+        $router->model( 'article', $class );
+
+        // Custom Polymorphic Types
+        Relation::morphMap( [ 'articles' => $class ] );
+        Status::register( $class, Simple::class );
+        Kit::title( $class, trans( 'article::common.article' ) );
+        CategoryManager::register( $class );
+        MenuManager::addItems( config( 'article.menus' ) );
+        Authority::permission()->registerCRUD( $class );
+        Kit::writeablePath(
+            'my_upload:' . config( 'article.featured_image.dir' ),
+            'trans::article::common.featured_image_dir' );
     }
 
     /**
@@ -58,8 +60,7 @@ class ServiceProvider extends BaseServiceProvider
      *
      * @return void
      */
-    public function register()
-    {
-        $this->mergeConfigFrom(__DIR__ . '/../config/article.php', 'article');
+    public function register() {
+        $this->mergeConfigFrom( __DIR__ . '/../config/article.php', 'article' );
     }
 }

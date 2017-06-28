@@ -14,7 +14,7 @@ use CategoryManager;
 class ManageController extends Controller
 {
     /**
-     * @var \Minhbang\Article\Html
+     * @var \Minhbang\Article\Presenter
      */
     protected $html;
     /**

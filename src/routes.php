@@ -11,19 +11,19 @@
 
 // Backend: Admin quản lý articles
 Route::group(
-    ['prefix' => 'backend', 'namespace' => 'Minhbang\Article\Controllers'],
+    ['prefix' => 'backend', 'as' => 'backend.', 'namespace' => 'Minhbang\Article\Controllers'],
     function () {
         Route::group(
             ['middleware' => config('article.middlewares.backend')],
             function () {
                 Route::group(
-                    ['prefix' => 'article', 'as' => 'backend.article.'],
+                    ['prefix' => 'article', 'as' => 'article.'],
                     function () {
                         Route::get('of/{type}', ['as' => 'type', 'uses' => 'BackendController@index']);
                         Route::get('data', ['as' => 'data', 'uses' => 'BackendController@data']);
                         Route::get('{article}/preview', ['as' => 'preview', 'uses' => 'BackendController@preview']);
                         Route::post('{article}/quick_update', ['as' => 'quick_update', 'uses' => 'BackendController@quickUpdate']);
-                        Route::post('{article}/status/{status}', ['as' => 'status', 'uses' => 'BackendController@status']);
+                        //Route::post('{article}/status/{status}', ['as' => 'status', 'uses' => 'BackendController@status']);
                     }
                 );
                 Route::resource('article', 'BackendController');
@@ -33,7 +33,7 @@ Route::group(
 );
 
 // Manage: User quản lý articles
-Route::group(
+/*Route::group(
     ['prefix' => 'manage', 'namespace' => 'Minhbang\Article\Controllers'],
     function () {
         Route::group(
@@ -51,4 +51,4 @@ Route::group(
             }
         );
     }
-);
+);*/

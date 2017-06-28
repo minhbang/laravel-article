@@ -1,5 +1,6 @@
 @extends('backend.layouts.master')
 @section('content')
+    @php /** @var \Minhbang\Article\Presenter $presenter */ @endphp
     <div class="row">
         <div class="col-lg-7">
             <table class="table table-hover table-striped table-bordered table-detail">
@@ -38,15 +39,15 @@
 
                 <tr>
                     <td>{{ trans('article::common.tags') }}</td>
-                    <td>{!! $html->tagsHtml($article) !!}</td>
+                    <td>{!! $presenter->tagsHtml($article) !!}</td>
                 </tr>
                 <tr>
                     <td>{{ trans('common.status') }}</td>
-                    <td>{!! $html->statusFormatted($article) !!}</td>
+                    <td>{!!  !!}</td>
                 </tr>
                 <tr>
                     <td>{{ trans('article::common.featured_image') }}</td>
-                    <td>{!! $html->featured_image($article) !!}</td>
+                    <td>{!! $presenter->featured_image($article) !!}</td>
                 </tr>
                 <tr>
                     <td>{{ trans('article::common.user') }}</td>
@@ -54,15 +55,15 @@
                 </tr>
                 <tr>
                     <td>{{ trans('common.created_at') }}</td>
-                    <td>{!! $html->createdAt($article) !!}</td>
+                    <td>{!! $presenter->createdAt($article) !!}</td>
                 </tr>
                 <tr>
                     <td>{{ trans('common.updated_at') }}</td>
-                    <td>{!! $html->updatedAt($article) !!}</td>
+                    <td>{!! $presenter->updatedAt($article) !!}</td>
                 </tr>
                 <tr>
                     <td>{{ trans('common.published_at') }}</td>
-                    <td>{!! $html->publishedAt($article) !!}</td>
+                    <td>{!! $presenter->publishedAt($article) !!}</td>
                 </tr>
             </table>
         </div>

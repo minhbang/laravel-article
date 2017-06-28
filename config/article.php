@@ -8,7 +8,7 @@ return [
         'max_depth' => 5,
     ],
 
-    // Hình đại diện của bài viết, lưu trong thư mục con của <upload_path>
+    // Hình đại diện của bài viết, lưu trong thư mục con của <my_upload:>
     'featured_image' => [
         'dir'       => 'images/articles',
         'width'     => 490,
@@ -18,27 +18,24 @@ return [
     ],
 
     // Html Presenter
-    'html'           => \Minhbang\Article\Html::class,
-
-    // Datatable Manager
-    'datatable'      => \Minhbang\Article\Datatable::class,
-
-    // Access Control
-    'access_control' => \Minhbang\Security\SimpleAccessControl::class,
-
-    /**
-     * Tự động add các route
-     */
-    'add_route'      => true,
-
+    'presenter'      => \Minhbang\Article\Presenter::class,
     /**
      * Khai báo middlewares cho các Controller
      */
     'middlewares'    => [
         'frontend' => [],
         'manage'   => [],
-        'backend'  => 'role:sys.admin',
+        'backend'  => ['web', 'role:sys.admin'],
     ],
+
     // Định nghĩa menus cho category
-    'menus'              => [\Minhbang\Article\Menu::class, 'all'],
+    'menus'          => [
+        'backend.sidebar.content.article' => [
+            'priority' => 1,
+            'url'      => 'route:backend.article.index',
+            'label'    => 'trans:article::common.article',
+            'icon'     => 'fa-newspaper-o',
+            'active'   => 'backend/article*',
+        ],
+    ],
 ];
