@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+@extends('kit::backend.layouts.master')
 @section('content')
     @php /** @var \Minhbang\Article\Presenter $presenter */ @endphp
     <div class="row">

@@ -1,4 +1,4 @@
-@extends('backend.layouts.modal')
+@extends('kit::backend.layouts.modal')
 @section('content')
     <div class="article-page">
         <div class="meta-top">

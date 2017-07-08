@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+@extends('kit::backend.layouts.master')
 @section('content')
     {!! Form::model($article, ['files' => true, 'url'=>$url, 'method' => $method]) !!}
     <div class="row">
@@ -70,7 +70,7 @@
                                 {!! Form::text('tag_names', null, ['data-options'=>$allTags, 'prompt' =>'', 'class' => 'form-control selectize-tags']) !!}
                             </div>
                             <div class="form-group{{ $errors->has('status') ? ' has-error':'' }}">
-                                {!! Form::label('status',  trans('ebook::common.status'), ['class'=> 'control-label']) !!}
+                                {!! Form::label('status',  trans('common.status'), ['class'=> 'control-label']) !!}
                                 {!! Form::select('status', $selectize_statuses, null, ['id' => 'selectize-status', 'class' => 'form-control']) !!}
                                 @if($errors->has('status'))
                                     <p class="help-block">{{ $errors->first('status') }}</p>

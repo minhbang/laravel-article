@@ -1,4 +1,4 @@
-@extends('backend.layouts.modal')
+@extends('kit::backend.layouts.modal')
 @section('content')
     @php /** @var \Minhbang\Article\Presenter $presenter */  @endphp
     <div class="article-page">
