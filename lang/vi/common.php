@@ -15,6 +15,7 @@ return [
     'featured_image_dir' => 'Bài viết: Thư mục Hình đại diện',
     'image'              => 'Hình đại diện',
     'tags'               => 'Tags',
+    'select_article'     => 'Chọn Bài viết...',
     'not_found'          => 'Không tìm thấy bài viết theo yêu cầu!',
     'empty'              => 'Chưa có :type được đăng trong mục này!',
     'invalid_type'       => 'Không tìm thấy loại Bài viết này!',

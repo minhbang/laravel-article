@@ -1,0 +1,146 @@
+<?php namespace Minhbang\Article;
+
+use Laracasts\Presenter\Presenter;
+use Minhbang\Kit\Traits\Presenter\DatetimePresenter;
+use Minhbang\Status\StatusPresenter;
+
+/**
+ * @property-read \Minhbang\Article\Article $entity
+ * Class ArticlePresenter
+ */
+class ArticlePresenter extends Presenter
+{
+    use DatetimePresenter;
+    use StatusPresenter;
+
+    /**
+     * @param array $options
+     *
+     * @return string
+     */
+    public function publishedAt($options = [])
+    {
+        return $this->formatDatetime($this->entity->published_at, $options);
+    }
+
+    /**
+     * @param bool $sm
+     * @param bool $size
+     *
+     * @return string
+     */
+    public function featured_image($sm = false, $size = false)
+    {
+        $src = $this->entity->featuredImageUrl($sm);
+        $sm = $sm ? '_sm' : '';
+        $width = $this->entity->config['featured_image']["width{$sm}"];
+        $height = $this->entity->config['featured_image']["height{$sm}"];
+        $size = $size ? "width=\"$width\" height=\"$height\" " : '';
+
+        return "<img src=\"{$src}\" alt=\"{$this->entity->title}\" {$size}/>";
+    }
+
+    /**
+     * @param string $classes
+     *
+     * @return null|string
+     */
+    public function tagsHtml($classes = 'label label-primary')
+    {
+        if ($tags = $this->entity->tagNames()) {
+            return '<span class="'.$classes.'">'.implode('</span><span class="'.$classes.'">', $tags).'</span>';
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function summary()
+    {
+        return mb_string_limit($this->entity->summary, setting('display.summary_limit'));
+    }
+
+    /**
+     * @return string
+     */
+    public function link()
+    {
+        return "<a href=\"{$this->entity->url}\">{$this->entity->title}</a>";
+    }
+
+    /**
+     * @param array $timeFormat
+     * @param string $field
+     *
+     * @return string
+     */
+    public function linkWithTime($timeFormat = [], $field = 'updated_at')
+    {
+        $time = $this->formatDatetime($this->entity->{$field}, $timeFormat);
+
+        return "<a href=\"{$this->entity->url}\">{$this->entity->title} <span class=\"time\">{$time}</span></a>";
+    }
+
+    /**
+     * @param string $attribute
+     *
+     * @return mixed|null
+     */
+    public function author($attribute = 'name')
+    {
+        return $this->entity->user ? $this->entity->user->{$attribute} : null;
+    }
+
+    /**
+     * Thông tin meta của article
+     *
+     * @param bool|string $author
+     * @param bool $br
+     * @param string $datetime
+     * @param array $datetimeOptions
+     *
+     * @return string
+     */
+    public function meta($author = true, $br = true, $datetime = 'published_at', $datetimeOptions = [])
+    {
+        $br = $br ? '<br>' : ' — ';
+        $html = $author ? '<strong>'.(is_string($author) ? $author : $this->entity->author)."</strong>$br" : '';
+        $html .= trans('article::common.meta', [
+                'datetime' => $this->formatDatetime($this->entity->{$datetime}, $datetimeOptions),
+                'hit' => $this->entity->hit,
+            ]);
+
+        return $html;
+    }
+
+    /**
+     * @param bool|string $author
+     * @param bool $br
+     *
+     * @return string
+     */
+    public function metaBlock($author = true, $br = true)
+    {
+        return '<div class="meta" data-id="'.$this->entity->id.'">'.$this->meta($author, $br).'</div>';
+    }
+
+    /**
+     * @return string
+     */
+    public function featured()
+    {
+        return <<<"ARTICLE"
+<div class="latest">
+    <a href="{$this->entity->url}">
+        {$this->featured_image($this->entity)}
+        <div class="info">
+            <h4 class="title">{$this->entity->title}</h4>
+            {$this->metaBlock($this->entity)}
+        </div>
+    </a>
+</div>
+ARTICLE;
+    }
+}

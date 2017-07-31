@@ -1,13 +1,13 @@
 <?php namespace Minhbang\Article;
 
 use Illuminate\Routing\Router;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use CategoryManager;
 use MenuManager;
 use Authority;
 use Kit;
 use Status;
+use Layout;
 use Minhbang\Status\Managers\Simple;
 
 /**
@@ -43,16 +43,16 @@ class ServiceProvider extends BaseServiceProvider {
         // model bindings
         $router->model( 'article', $class );
 
-        // Custom Polymorphic Types
-        Relation::morphMap( [ 'articles' => $class ] );
-        Status::register( $class, Simple::class );
+        Kit::alias( $class, 'article' );
         Kit::title( $class, trans( 'article::common.article' ) );
+        Status::register( $class, Simple::class );
         CategoryManager::register( $class );
         MenuManager::addItems( config( 'article.menus' ) );
         Authority::permission()->registerCRUD( $class );
         Kit::writeablePath(
             'my_upload:' . config( 'article.featured_image.dir' ),
             'trans::article::common.featured_image_dir' );
+        Layout::registerWidgetTypes( config( 'article.widgets' ) );
     }
 
     /**

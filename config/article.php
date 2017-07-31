@@ -1,13 +1,6 @@
 <?php
 
 return [
-    'types'          => ['news', 'page'],
-    // Category setting
-    'category'       => [
-        'title'     => 'article::common.types',
-        'max_depth' => 5,
-    ],
-
     // Hình đại diện của bài viết, lưu trong thư mục con của <my_upload:>
     'featured_image' => [
         'dir'       => 'images/articles',
@@ -17,15 +10,12 @@ return [
         'height_sm' => 80,
     ],
 
-    // Html Presenter
-    'presenter'      => \Minhbang\Article\Presenter::class,
     /**
      * Khai báo middlewares cho các Controller
      */
     'middlewares'    => [
-        'frontend' => [],
-        'manage'   => [],
-        'backend'  => ['web', 'role:sys.admin'],
+        'frontend' => ['web'],
+        'backend'  => [ 'web', 'role:sys.admin' ],
     ],
 
     // Định nghĩa menus cho category
@@ -36,6 +26,27 @@ return [
             'label'    => 'trans:article::common.article',
             'icon'     => 'fa-newspaper-o',
             'active'   => 'backend/article*',
+        ],
+    ],
+
+    'widgets' => [
+        'article'  => [
+            'title'       => 'trans::article::widget.article.title',
+            'description' => 'trans::article::widget.article.description',
+            'icon'        => 'newspaper-o',
+            'class'       => \Minhbang\Article\Widgets\ArticleWidget::class,
+        ],
+        'article_category'  => [
+            'title'       => 'trans::article::widget.article_category.title',
+            'description' => 'trans::article::widget.article_category.description',
+            'icon'        => 'sitemap',
+            'class'       => \Minhbang\Article\Widgets\ArticleCategoryWidget::class,
+        ],
+        'latest_articles' => [
+            'title'       => 'trans::article::widget.latest_articles.title',
+            'description' => 'trans::article::widget.latest_articles.description',
+            'icon'        => 'list',
+            'class'       => \Minhbang\Article\Widgets\LatestArticlesWidget::class,
         ],
     ],
 ];

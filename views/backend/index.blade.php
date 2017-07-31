@@ -42,13 +42,11 @@
 <script type="text/javascript">
     window.datatableDrawCallback = function (dataTableApi) {
         dataTableApi.$('a.quick-update').quickUpdate({
-            'url': '{{ route('backend.article.quick_update', ['article' => '__ID__']) }}',
+            'url': '{{ route($route_prefix.'backend.article.quick_update', ['article' => '__ID__']) }}',
             'container': '#article-manage',
             'dataTableApi': dataTableApi
         });
-        /*dataTableApi.$('select.select-btngroup').select_btngroup({
-            dataTable: dataTableApi
-        });*/
+        dataTableApi.$('select.select-btngroup').select_btngroup({'dataTableApi': dataTableApi});
     };
     window.settings.mbDatatables = {
         trans: {
@@ -57,4 +55,10 @@
     }
 </script>
 {!! $html->scripts() !!}
+<script type="text/javascript">
+    $(document).ready(function () {
+        window.LaravelDataTables['article-manage'].order([3, 'desc']).draw();
+    });
+</script>
 @endpush
+

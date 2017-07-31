@@ -1,9 +1,8 @@
 @extends('kit::backend.layouts.modal')
 @section('content')
-    @php /** @var \Minhbang\Article\Presenter $presenter */  @endphp
     <div class="article-page">
         <div class="meta-top">
-            {{ $presenter->formatDatetime($article->updated_at) }}
+            {!! $article->present()->updatedAt !!}
         </div>
         <div class="page-header">
             <h1>{{$article->title}}</h1>

@@ -24,7 +24,8 @@ class ArticleTransformer extends ModelTransformer
                 ]
             ),
             'author'  => $article->author,
-            'status'  => 'ABC',
+            'status'         => $article->present()->statusQuickUpdate( route( "{$this->zone}.article.status", [ 'article' => $article->id, 'status' => 'STATUS' ] ) ),
+            'updated_at'     => $article->present()->updatedAt(['template' => ':time, :date']),
             'actions' => HtmlBuilder::tableActions(
                 "{$this->zone}.article",
                 ['article' => $article->id],

@@ -1,11 +1,13 @@
 <?php
+
 namespace Minhbang\Article\Controllers;
 
 use Minhbang\Category\Category;
 use Minhbang\Kit\Extensions\Controller;
-use View;
 use Minhbang\Article\Article;
 use CategoryManager;
+use Request;
+
 /**
  * Class FrontendController
  *
@@ -14,29 +16,28 @@ use CategoryManager;
 class FrontendController extends Controller
 {
     /**
-     * All article types
-     *
-     * @var array
-     */
-    protected $types;
-    protected $type;
-    protected $typeName;
-    /**
-     * @var \Minhbang\Category\Type
+     * @var \Minhbang\Category\Root
      */
     public $categoryManager;
+
     /**
      * FrontendController constructor.
      */
     public function __construct()
     {
-        $this->types = config('article.types');
         parent::__construct();
         $this->categoryManager = CategoryManager::of(Article::class);
-        View::share('categoryManager', $this->categoryManager);
-        View::share('type', $this->type);
-        View::share('typeName', $this->typeName);
-        View::share('html', $this->newClassInstance(config('article.html')));
+    }
+
+    /**
+     * Show kết quả tìm kiếm
+     */
+    public function search()
+    {
+        $q = Request::get('q');
+        $articles = $q ? Article::searchKeyword($q, [''])->paginate(10) : null;
+
+        return view('article::frontend.search', compact('articles', 'q'));
     }
 
     /**
@@ -44,46 +45,29 @@ class FrontendController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index($slug)
+    public function category($slug)
     {
-        $this->switchCategoryType($slug);
+        $category = Category::findBySlug($slug);
+        abort_unless($category, 404, trans('category::common.not_fount'));
 
-        return $this->showCategory($slug);
+        return $this->showCategory($this->getBreadcrumbs($category), $category);
     }
 
     /**
-     * @param string $slug
      * @param \Minhbang\Category\Category $category
-     *
-     * @return \Illuminate\View\View
-     */
-    public function category($slug, Category $category)
-    {
-        $this->switchCategoryType($slug);
-
-        return $this->showCategory($slug, $this->getBreadcrumbs($category), $category);
-    }
-
-    /**
-     * @param string $type
      * @param array $breadcrumbs
-     * @param \Minhbang\Category\Category $category
-     *
-     * @return \View
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    protected function showCategory($type, $breadcrumbs = [], $category = null)
+    protected function showCategory($category = null, $breadcrumbs = [])
     {
-        $query = Article::queryDefault()
-            ->published()
-            ->withAuthor()
-            ->categorized($category ?: $this->categoryManager->root())
-            ->orderUpdated();
+        $category = $category ?: $this->categoryManager->node();
+        $query = Article::queryDefault()->isReady('read')->withAuthor()->categorized($category ?: $this->categoryManager->root())->orderUpdated();
         $latest = $query->first();
         $articles = $latest ? $query->except($latest->id)->paginate(6) : null;
         if ($breadcrumbs) {
             $this->buildBreadcrumbs($breadcrumbs);
         }
-        $view = "article::frontend.index-{$type}";
+        $view = "article::frontend.index-{$category->slug}";
         $view = view()->exists($view) ? $view : 'article::frontend.index';
 
         return view($view, compact('latest', 'articles', 'category'));
@@ -91,14 +75,15 @@ class FrontendController extends Controller
 
     /**
      * Xem $article
+     *
      * @param \Minhbang\Article\Article $article
      * @param string $slug
      *
      * @return \Illuminate\View\View
      */
-    public function show($article, $slug)
+    public function show(Article $article, $slug)
     {
-        abort_unless(($article->slug == $slug) && $article->isPublished(), 404, trans('article::common.not_found'));
+        abort_unless(($article->slug == $slug) && $article->isReady('read'), 404, trans('article::common.not_found'));
         $related = $article->getRelated();
 
         return view('article::frontend.show', compact('article', 'latest', 'related'));
@@ -116,7 +101,7 @@ class FrontendController extends Controller
     {
         $noArticle = is_null($article);
         $breadcrumbs = [route('article.index', ['type' => $this->type]) => $this->typeName];
-        $paths = $category->getRoot1Path(['id', 'title'], !$noArticle);
+        $paths = $category->getRoot1Path(['id', 'title'], ! $noArticle);
         foreach ($paths as $cat) {
             $breadcrumbs[route('article.category', ['type' => $this->type, 'category' => $cat->id])] = $cat->title;
         }
