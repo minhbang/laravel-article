@@ -9,6 +9,7 @@ use CategoryManager;
 use Request;
 
 /**
+ * Todo: tag action
  * Class FrontendController
  *
  * @package Minhbang\Article
@@ -30,45 +31,48 @@ class FrontendController extends Controller
     }
 
     /**
-     * Show kết quả tìm kiếm
+     * @return string
+     */
+    public function tag()
+    {
+        return '';
+    }
+
+    /**
+     * Kết quả tìm kiếm
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function search()
     {
         $q = Request::get('q');
-        $articles = $q ? Article::searchKeyword($q, [''])->paginate(10) : null;
+        $articles = $q ? Article::ready('read')->queryDefault()->withAuthor()->searchKeyword($q, [
+            'title',
+            'slug',
+            'summary',
+            'content',
+        ])->paginate(5) : null;
+        $this->buildHeading(trans('common.search'), 'fa-search', ['#' => trans('common.search')]);
 
         return view('article::frontend.search', compact('articles', 'q'));
     }
 
     /**
+     * Danh mục bài viết
+     *
      * @param string $slug
      *
      * @return \Illuminate\View\View
      */
     public function category($slug)
     {
-        $category = Category::findBySlug($slug);
-        abort_unless($category, 404, trans('category::common.not_fount'));
-
-        return $this->showCategory($this->getBreadcrumbs($category), $category);
-    }
-
-    /**
-     * @param \Minhbang\Category\Category $category
-     * @param array $breadcrumbs
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    protected function showCategory($category = null, $breadcrumbs = [])
-    {
-        $category = $category ?: $this->categoryManager->node();
-        $query = Article::queryDefault()->isReady('read')->withAuthor()->categorized($category ?: $this->categoryManager->root())->orderUpdated();
+        abort_unless($slug && ($category = Category::findBySlug($slug)), 404, trans('category::common.not_fount'));
+        $query = Article::queryDefault()->ready('read')->withAuthor()->categorized($category)->orderUpdated();
         $latest = $query->first();
         $articles = $latest ? $query->except($latest->id)->paginate(6) : null;
-        if ($breadcrumbs) {
-            $this->buildBreadcrumbs($breadcrumbs);
-        }
-        $view = "article::frontend.index-{$category->slug}";
-        $view = view()->exists($view) ? $view : 'article::frontend.index';
+        $this->buildHeading($category->title, 'fa-sitemap', $this->getBreadcrumbs($category));
+        $view = "article::frontend.category-{$category->slug}";
+        $view = view()->exists($view) ? $view : 'article::frontend.category';
 
         return view($view, compact('latest', 'articles', 'category'));
     }
@@ -85,6 +89,9 @@ class FrontendController extends Controller
     {
         abort_unless(($article->slug == $slug) && $article->isReady('read'), 404, trans('article::common.not_found'));
         $related = $article->getRelated();
+        $breadcrumbs = $article->category ? $this->buildBreadcrumbs($this->getBreadcrumbs($article->category, $article)) : [];
+        $this->buildHeading($article->title, 'fa-newspaper-o', $breadcrumbs);
+        $article->updateHit();
 
         return view('article::frontend.show', compact('article', 'latest', 'related'));
     }
@@ -100,10 +107,10 @@ class FrontendController extends Controller
     public function getBreadcrumbs($category, $article = null)
     {
         $noArticle = is_null($article);
-        $breadcrumbs = [route('article.index', ['type' => $this->type]) => $this->typeName];
-        $paths = $category->getRoot1Path(['id', 'title'], ! $noArticle);
+        $breadcrumbs = [];
+        $paths = $category->getRoot1Path(['slug', 'title'], ! $noArticle);
         foreach ($paths as $cat) {
-            $breadcrumbs[route('article.category', ['type' => $this->type, 'category' => $cat->id])] = $cat->title;
+            $breadcrumbs[route('article.category', ['slug' => $cat->slug])] = $cat->title;
         }
         $breadcrumbs['#'] = $noArticle ? $category->title : $article->title;
 

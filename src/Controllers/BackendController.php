@@ -139,7 +139,7 @@ class BackendController extends BaseController {
     public function store( ArticleRequest $request ) {
         $article = new Article();
         $article->fill( $request->all() );
-        $article->fillFeaturedImage( $request );
+        $article->fillFeaturedImage( $request , true);
         $article->user_id = user( 'id' );
         //$article->fillStatus($request->get('s'));
         $article->save();
@@ -221,7 +221,7 @@ class BackendController extends BaseController {
      */
     public function update( ArticleRequest $request, Article $article ) {
         $article->fill( $request->all() );
-        $article->fillFeaturedImage( $request );
+        $article->fillFeaturedImage( $request , true);
         //$article->fillStatus($request->get('s'));
         $article->save();
         Session::flash(

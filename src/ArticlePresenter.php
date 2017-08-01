@@ -24,20 +24,12 @@ class ArticlePresenter extends Presenter
     }
 
     /**
-     * @param bool $sm
-     * @param bool $size
-     *
+     * @param string $ver
      * @return string
      */
-    public function featured_image($sm = false, $size = false)
+    public function featured_image($ver = '')
     {
-        $src = $this->entity->featuredImageUrl($sm);
-        $sm = $sm ? '_sm' : '';
-        $width = $this->entity->config['featured_image']["width{$sm}"];
-        $height = $this->entity->config['featured_image']["height{$sm}"];
-        $size = $size ? "width=\"$width\" height=\"$height\" " : '';
-
-        return "<img src=\"{$src}\" alt=\"{$this->entity->title}\" {$size}/>";
+        return $this->entity->featured_image ? "<img src=\"{$this->entity->featuredImageUrl($ver)}\"/>" : '';
     }
 
     /**
@@ -55,11 +47,14 @@ class ArticlePresenter extends Presenter
     }
 
     /**
+     * @param null $limit
      * @return string
      */
-    public function summary()
+    public function summary($limit = null)
     {
-        return mb_string_limit($this->entity->summary, setting('display.summary_limit'));
+        $limit = is_null($limit) ? setting('display.summary_limit') : $limit;
+
+        return mb_string_limit($this->entity->summary, $limit);
     }
 
     /**
@@ -105,12 +100,13 @@ class ArticlePresenter extends Presenter
      */
     public function meta($author = true, $br = true, $datetime = 'published_at', $datetimeOptions = [])
     {
+        $datetime = $this->entity->{$datetime} ?: $this->entity->updated_at;
         $br = $br ? '<br>' : ' — ';
         $html = $author ? '<strong>'.(is_string($author) ? $author : $this->entity->author)."</strong>$br" : '';
         $html .= trans('article::common.meta', [
-                'datetime' => $this->formatDatetime($this->entity->{$datetime}, $datetimeOptions),
-                'hit' => $this->entity->hit,
-            ]);
+            'datetime' => $this->formatDatetime($datetime, $datetimeOptions),
+            'hit' => $this->entity->hit,
+        ]);
 
         return $html;
     }
@@ -123,7 +119,7 @@ class ArticlePresenter extends Presenter
      */
     public function metaBlock($author = true, $br = true)
     {
-        return '<div class="meta" data-id="'.$this->entity->id.'">'.$this->meta($author, $br).'</div>';
+        return '<div class="article-meta" data-id="'.$this->entity->id.'">'.$this->meta($author, $br).'</div>';
     }
 
     /**

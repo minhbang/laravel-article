@@ -180,14 +180,20 @@ class Article extends Model {
      *
      * @param int $take
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Minhbang\Article\Article[]
      */
     public function getRelated( $take = 5 ) {
         if ( ( $category = $this->category ) && ( $tagNames = $this->tagNames() ) ) {
-            return Article::queryDefault()->take( $take )->categorized( $category->getRoot() )->except( $this->id )
-                          ->taggedAll( $tagNames )->orderByMatchedTag( $tagNames )->orderUpdated()->get();
+            return Article::queryDefault()->ready('read')->take( $take )->categorized( $category->getRoot() )->except( $this->id )
+                          ->taggedAll( $tagNames )->orderByMatchedTag( $tagNames )->orderUpdated()->get()->all();
         } else {
-            return new Collection();
+            return [];
         }
+    }
+
+    public function updateHit()
+    {
+        Article::where('id', $this->id)->increment('hit');
+        $this->hit++;
     }
 }

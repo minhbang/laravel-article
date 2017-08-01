@@ -1,17 +1,38 @@
 <?php
 /**
  * @var \Minhbang\Article\Article $article
+ * @var \Minhbang\Article\Article[] $related
  */
 ?>
 @extends('article::layouts.frontend')
 
 @section('content')
-    <div class="article">
-        <div class="title">{{$article->title}}</div>
-        {!! $article->present()->metaBlock($article->author('name'), false) !!}
-        <div class="content">
+    <div class="article-single">
+        @if($article->featured_image)
+            <div class="article-image">
+                {!! $article->present()->featured_image('full-') !!}
+            </div>
+        @endif
+        <div class="article-title"><h3>{{$article->title}}</h3></div>
+        @if(setting('display.article_meta', true))
+            {!! $article->present()->metaBlock( false/**$article->author('name')*/, false) !!}
+        @endif
+        <div class="article-content">
             {!! $article->content !!}
         </div>
     </div>
-    {{--//$html->renderListLink($related, trans('common.related_objects', ['name' => $typeName])) --}}
+    @if($related)
+        <div class="articles articles-related">
+            <div class="articles-related-title">
+                <h4>{{trans('common.related_objects', ['name' => trans('article::common.article')])}}</h4>
+            </div>
+            <div class="row">
+                @foreach($related as $a)
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                        @include('article::frontend._article_summary', ['article' => $a, 'show_meta' => false])
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 @stop
