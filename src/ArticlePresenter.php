@@ -29,7 +29,9 @@ class ArticlePresenter extends Presenter
      */
     public function featured_image($ver = '')
     {
-        return $this->entity->featured_image ? "<img src=\"{$this->entity->featuredImageUrl($ver)}\"/>" : '';
+        $src = $this->entity->featuredImageUrl($ver);
+
+        return $src ? "<img src=\"{$this->entity->featuredImageUrl($ver)}\"/>" : null;
     }
 
     /**
@@ -120,23 +122,5 @@ class ArticlePresenter extends Presenter
     public function metaBlock($author = true, $br = true)
     {
         return '<div class="article-meta" data-id="'.$this->entity->id.'">'.$this->meta($author, $br).'</div>';
-    }
-
-    /**
-     * @return string
-     */
-    public function featured()
-    {
-        return <<<"ARTICLE"
-<div class="latest">
-    <a href="{$this->entity->url}">
-        {$this->featured_image($this->entity)}
-        <div class="info">
-            <h4 class="title">{$this->entity->title}</h4>
-            {$this->metaBlock($this->entity)}
-        </div>
-    </a>
-</div>
-ARTICLE;
     }
 }

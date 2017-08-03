@@ -26,7 +26,7 @@
         @else
             <div class="articles articles-list">
                 @foreach($articles as $article)
-                    @include('article::frontend._article_summary', ['article' => $article, 'show_meta' => false])
+                    @include('article::frontend._article_summary', ['article' => $article, 'show_meta' => config('article.display.show_time')])
                 @endforeach
                 <nav class="text-center">
                     {!! $articles->appends(['q' => $q])->links() !!}

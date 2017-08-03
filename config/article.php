@@ -10,6 +10,10 @@ return [
         'height_sm' => 80,
     ],
 
+    'display' => [
+        'show_time' => false,
+        'show_author' => false,
+    ],
     /**
      * Khai báo middlewares cho các Controller
      */

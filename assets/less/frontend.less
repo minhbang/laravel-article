@@ -7,13 +7,14 @@
 
 // Default Grid Style Item
 .article-item {
-    a {
+    & > a {
         .border-radius(5px);
         overflow: hidden;
         color: @text-color;
         display: block;
         border: 1px solid @border-color;
         margin-bottom: 15px;
+        .transition(all 0.5s);
         .article-image {
             max-height: 170px;
             overflow: hidden;
@@ -23,18 +24,26 @@
             padding: 10px;
             margin: 0;
             .transition(all 0.5s);
-            min-height: 40px;
+            height: 80px;
+            overflow: hidden;
             font-size: 16px;
-            color: @color1;
+            color: @text-color;
             font-weight: 600;
         }
+        .article-meta{
+            font-size: 85%;
+            padding: 0 10px;
+            text-align: right;
+            color: @text-muted;
+        }
         .article-summary {
-            padding: 10px;
+            padding: 0 10px 10px;
             height: 120px;
             overflow: hidden;
         }
         &:hover, :focus {
             text-decoration: none;
+            border-color: @color1;
             .article-image {
                 img {
                     .scale(1.2);
@@ -52,7 +61,7 @@
     .article-item {
         border-bottom: 1px dotted @border-color;
         margin: 0 0 15px;
-        a {
+        & > a {
             border: none;
             .border-radius(0);
             .article-image {
@@ -85,6 +94,9 @@
             }
             .article-title {
                 font-size: 20px;
+                padding: 0;
+                height: inherit;
+                margin-bottom: 15px;
             }
             .article-summary {
 
@@ -107,9 +119,84 @@
     }
     .article-content {
         margin-top: 20px;
-        p{
+        p {
             text-align: justify;
             text-indent: 30px;
+        }
+        img:not(.media-object) {
+            max-width: 95%;
+            background: #ffffff;
+            border: 1px solid @border-color;
+            padding: 5px;
+            .box-shadow(0 4px 10px @border-color);
+            margin: 0 auto;
+        }
+    }
+}
+
+// Latest Articles Widget
+// ----------------------------------------------------------------------------------------------------------------
+.widget-latest_articles {
+    .article {
+        a {
+            .border-radius(5px);
+            overflow: hidden;
+            color: @text-color;
+            display: block;
+            border: 1px solid @border-color;
+            margin-bottom: 15px;
+            .article-image {
+                max-height: 170px;
+                overflow: hidden;
+                .hover-img-shine-effect();
+            }
+            .article-meta {
+                font-size: 85%;
+                padding: 0 10px;
+                text-align: right;
+                color: @text-muted;
+            }
+            .article-title {
+                padding: 10px;
+                margin: 0;
+                .transition(all 0.5s);
+                min-height: 72px;
+                font-size: 16px;
+            }
+            .article-summary {
+                padding: 10px;
+                height: 110px;
+                overflow: hidden;
+            }
+            &:hover, :focus {
+                text-decoration: none;
+                .article-image {
+                    img {
+                        .scale(1.2);
+                    }
+                }
+                .article-title {
+                    color: @color1;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: @screen-sm-max) {
+    .widget-latest_articles {
+        .article {
+            a {
+                .article-image {
+                    max-height: inherit;
+                }
+                .article-title {
+                    min-height: inherit;
+                }
+                .article-summary {
+                    height: inherit;
+                }
+            }
         }
     }
 }

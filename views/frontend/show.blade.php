@@ -8,14 +8,12 @@
 
 @section('content')
     <div class="article-single">
-        @if($article->featured_image)
-            <div class="article-image">
-                {!! $article->present()->featured_image('full-') !!}
-            </div>
+        @if(($article_image = $article->present()->featured_image('full-')))
+            <div class="article-image">{!! $article_image !!}</div>
         @endif
         <div class="article-title"><h3>{{$article->title}}</h3></div>
-        @if(setting('display.article_meta', true))
-            {!! $article->present()->metaBlock( false/**$article->author('name')*/, false) !!}
+        @if(config('article.display.show_author'))
+            {!! $article->present()->metaBlock( config('article.display.show_author') ? $article->author('name'): false, false) !!}
         @endif
         <div class="article-content">
             {!! $article->content !!}
