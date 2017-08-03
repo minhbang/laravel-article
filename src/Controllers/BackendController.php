@@ -37,6 +37,7 @@ class BackendController extends BaseController {
 
     /**
      * Phục vụ data cho selectize articles
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function select() {
@@ -139,7 +140,7 @@ class BackendController extends BaseController {
     public function store( ArticleRequest $request ) {
         $article = new Article();
         $article->fill( $request->all() );
-        $article->fillFeaturedImage( $request , true);
+        $article->fillFeaturedImage( $request, true );
         $article->user_id = user( 'id' );
         //$article->fillStatus($request->get('s'));
         $article->save();
@@ -177,7 +178,7 @@ class BackendController extends BaseController {
             ]
         );
 
-        return view( 'article::backend.show', compact( 'article', 'typeName') );
+        return view( 'article::backend.show', compact( 'article', 'typeName' ) );
     }
 
     /**
@@ -186,7 +187,7 @@ class BackendController extends BaseController {
      * @return \Illuminate\View\View
      */
     public function preview( Article $article ) {
-        return view( 'article::backend.preview', compact( 'article') );
+        return view( 'article::backend.preview', compact( 'article' ) );
     }
 
     /**
@@ -221,7 +222,7 @@ class BackendController extends BaseController {
      */
     public function update( ArticleRequest $request, Article $article ) {
         $article->fill( $request->all() );
-        $article->fillFeaturedImage( $request , true);
+        $article->fillFeaturedImage( $request, true );
         //$article->fillStatus($request->get('s'));
         $article->save();
         Session::flash(

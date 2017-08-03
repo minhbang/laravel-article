@@ -140,7 +140,7 @@ class Article extends Model {
      *
      * @return \Illuminate\Database\Query\Builder|\Minhbang\Article\Article
      */
-    public function scopeForSelectize( $query, $find, $take = 10 ) {
+    public function scopeForSelectize( $query, $find = null, $take = 10 ) {
         return $this->scopeFindText( $query, [ 'title', 'slug' ], $find )->select( [ 'id', 'title' ] )->take( $take );
     }
 

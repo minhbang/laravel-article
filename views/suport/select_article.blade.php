@@ -2,10 +2,9 @@
 
 use Minhbang\Article\Article;
 
-if ( $article = empty( $selected_id ) ? null : Article::find( $selected_id ) ) {
-    $articles = [ $selected_id => $article->title ];
-} else {
-    $articles = [ '' => trans( 'article::common.select_article' ) ];
+$articles = ['' => trans('article::common.select_article')] + Article::forSelectize()->pluck('title', 'id')->all();
+if ($article = empty($selected_id) ? null : Article::find($selected_id)) {
+    $articles = $articles + [$selected_id => $article->title];
 }
 ?>
 {!! Form::select($name, $articles, $selected_id, ['class' => 'form-control']) !!}
