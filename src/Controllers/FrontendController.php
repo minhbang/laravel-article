@@ -67,6 +67,7 @@ class FrontendController extends Controller
     public function category($slug)
     {
         abort_unless($slug && ($category = Category::findBySlug($slug)), 404, trans('category::common.not_fount'));
+        CategoryManager::current($category);
         $articles = Article::queryDefault()->ready('read')->withAuthor()->categorized($category)->orderUpdated()->paginate(setting('display.category_page_limit', 7));
         $this->buildHeading($category->title, 'fa-sitemap', $this->getBreadcrumbs($category));
         $view = "article::frontend.category-{$category->slug}";

@@ -14,9 +14,6 @@ return [
     'article_category' => [
         'title'       => 'Danh mục Bài viết',
         'description' => 'Hiển thị Danh sách Danh mục Bài viết',
-        'category_id' => 'Danh mục cha',
-        'route_show'  => 'Route trang xem Danh mục',
-        'max_depth'   => 'Chiều sâu',
     ],
     'latest_articles'  => [
         'title'              => 'Danh sách Bài viết',
