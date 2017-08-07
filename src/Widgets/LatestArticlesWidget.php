@@ -82,7 +82,7 @@ class LatestArticlesWidget extends WidgetType
     protected function content($widget)
     {
         if ($category = $this->getCategory($widget)) {
-            $articles = Article::categorized($category)->orderUpdated()->take($widget->data['limit'])->get();
+            $articles = Article::ready('read')->categorized($category)->orderUpdated()->take($widget->data['limit'])->get();
             $limit_title = setting('display.title_limit', 60);
             $limit_summary = setting('display.summary_limit', 500);
 

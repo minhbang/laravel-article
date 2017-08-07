@@ -7,7 +7,7 @@
  */
 $css = empty( $widget->data['item_css'] ) ? [] : explode( '|', $widget->data['item_css'] );
 $css_len = count( $css );
-$has_col = ! empty( $css[0] ) && str_is( "* col-*", ' ' . $css[0] );
+$has_col = ! empty( $css[0] ) && str_is( "*col-*", ' ' . $css[0] );
 ?>
 @if($articles)
     @if($has_col)
