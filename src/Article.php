@@ -38,7 +38,7 @@ use Minhbang\Status\Traits\Statusable;
  * @property-read string $linked_image_ids_original
  * @property string $tag_names
  * @property-read string $url
- * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\ImageModel[] $images
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Image\Image[] $images
  * @property-read \Illuminate\Database\Eloquent\Collection|\Minhbang\Tag\Tag[] $tags
  * @property-read \Minhbang\User\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|\Minhbang\Article\Article categorized($category = null)
