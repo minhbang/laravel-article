@@ -1,13 +1,13 @@
 <?php
 /**
  * @var \Minhbang\Layout\Widget $widget
- * @var \Minhbang\Article\Article[] $articles
+ * @var \Minhbang\Article\Article[]|\Illuminate\Database\Eloquent\Collection $articles
  * @var int $limit_title
  * @var int $limit_summary
  */
-$css = empty( $widget->data['item_css'] ) ? [] : explode( '|', $widget->data['item_css'] );
-$css_len = count( $css );
-$has_col = ! empty( $css[0] ) && str_is( "*col-*", ' ' . $css[0] );
+$css = empty($widget->data['item_css']) ? [] : explode('|', $widget->data['item_css']);
+$css_len = count($css);
+$has_col = ! empty($css[0]) && str_is("*col-*", ' '.$css[0]);
 ?>
 @if($articles)
     @if($has_col)

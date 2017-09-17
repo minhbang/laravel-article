@@ -1,10 +1,12 @@
 <?php
+
 namespace Minhbang\Article;
+
 use Minhbang\Kit\Extensions\Html\DatetimeHtml;
 use Minhbang\Status\StatusPresenter;
 
-
 /**
+ * TODO: không dùng class này nữa ==================
  * Class Presenter
  *
  * @package Minhbang\Article
@@ -13,6 +15,7 @@ class Presenter
 {
     use DatetimeHtml;
     use StatusPresenter;
+
     /**
      * @param \Minhbang\Article\Article $article
      * @param string $classes
@@ -22,7 +25,7 @@ class Presenter
     public function tagsHtml($article, $classes = 'label label-primary')
     {
         if ($tags = $article->tagNames()) {
-            return '<span class="' . $classes . '">' . implode('</span><span class="' . $classes . '">', $tags) . '</span>';
+            return '<span class="'.$classes.'">'.implode('</span><span class="'.$classes.'">', $tags).'</span>';
         } else {
             return null;
         }
@@ -94,12 +97,12 @@ class Presenter
     public function meta($article, $author = true, $br = true, $datetime = 'published_at', $datetimeOptions = [])
     {
         $br = $br ? '<br>' : ' — ';
-        $html = $author ? '<strong>' . (is_string($author) ? $author : $article->author) . "</strong>$br" : '';
+        $html = $author ? '<strong>'.(is_string($author) ? $author : $article->author)."</strong>$br" : '';
         $html .= trans(
             'article::common.meta',
             [
                 'datetime' => $this->formatDatetime($article->{$datetime}, $datetimeOptions),
-                'hit'      => $article->hit,
+                'hit' => $article->hit,
             ]
         );
 
@@ -115,7 +118,7 @@ class Presenter
      */
     public function metaBlock($article, $author = true, $br = true)
     {
-        return '<div class="meta" data-id="' . $article->id . '">' . $this->meta($article, $author, $br) . '</div>';
+        return '<div class="meta" data-id="'.$article->id.'">'.$this->meta($article, $author, $br).'</div>';
     }
 
     /**
@@ -181,7 +184,7 @@ ITEM;
         $html = '';
         if ($items->count()) {
             foreach ($items as $item) {
-                $html .= '<li>' . $this->linkWithTime($item, $timeFormat, $field) . '</li>';
+                $html .= '<li>'.$this->linkWithTime($item, $timeFormat, $field).'</li>';
             }
             $html = <<<"LIST"
 <div class="article-list">

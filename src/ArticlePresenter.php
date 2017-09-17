@@ -31,7 +31,7 @@ class ArticlePresenter extends Presenter
     {
         $src = $this->entity->featuredImageUrl($ver);
 
-        return $src ? "<img src=\"{$this->entity->featuredImageUrl($ver)}\"/>" : null;
+        return $src ? "<img src=\"{$src}\"/>" : null;
     }
 
     /**

@@ -1,23 +1,33 @@
 <?php namespace Minhbang\Article\Widgets;
 
-use Minhbang\Layout\WidgetTypes\WidgetType;
 use Minhbang\Article\Article;
+use Minhbang\Layout\WidgetTypes\WidgetType;
 
 /**
  * Class ArticleWidget
  *
  * @package Minhbang\Article\Widgets
  */
-class ArticleWidget extends WidgetType {
+class ArticleWidget extends WidgetType
+{
     /**
      * @param \Minhbang\Layout\Widget|string $widget
      *
      * @return string
      */
-    public function titleBackend( $widget ) {
-        $title = ( $article = $this->getArticle( $widget ) ) ? $article->title : $widget;
+    public function titleBackend($widget)
+    {
+        $title = ($article = $this->getArticle($widget)) ? $article->title : $widget;
 
-        return parent::titleBackend( $title );
+        return parent::titleBackend($title);
+    }
+
+    /**
+     * @return array
+     */
+    public function formOptions()
+    {
+        return ['width' => 'large'] + parent::formOptions();
     }
 
     /**
@@ -25,21 +35,16 @@ class ArticleWidget extends WidgetType {
      *
      * @return Article|null
      */
-    protected function getArticle( $widget ) {
-        return empty( $widget->data['article_id'] ) ? null : Article::find( $widget->data['article_id'] );
-    }
-
-    /**
-     * @return array
-     */
-    public function formOptions() {
-        return [ 'width' => 'large'] + parent::formOptions();
+    protected function getArticle($widget)
+    {
+        return empty($widget->data['article_id']) ? null : Article::find($widget->data['article_id']);
     }
 
     /**
      * @return string
      */
-    protected function formView() {
+    protected function formView()
+    {
         return 'article::widget.article_form';
     }
 
@@ -48,28 +53,64 @@ class ArticleWidget extends WidgetType {
      *
      * @return string
      */
-    protected function content( $widget ) {
-        $article = $this->getArticle( $widget );
-        $limit_title = - 1;
-        $limit_summary = - 1;
+    protected function content($widget)
+    {
+        $article = $this->getArticle($widget);
+        $limit_title = -1;
+        $limit_summary = -1;
 
-        return view( 'article::widget.article_output', compact( 'widget', 'article', 'limit_title', 'limit_summary' ) )->render();
+        return view('article::widget.article_output', compact('widget', 'article', 'limit_title', 'limit_summary'))->render();
     }
 
     /**
      * @return array
      */
-    protected function dataAttributes() {
+    protected function dataAttributes()
+    {
         return [
-            [ 'name' => 'article_id', 'title' => trans( 'article::widget.article.id' ), 'rule' => 'required|integer', 'default' => null ],
+            [
+                'name' => 'article_id',
+                'title' => trans('article::widget.article.id'),
+                'rule' => 'required|integer',
+                'default' => null,
+            ],
             // Common Article Params
-            [ 'name' => 'show_title', 'title' => trans( 'article::widget.article.show_title' ), 'rule' => 'integer', 'default' => 0 ],
-            [ 'name' => 'show_image', 'title' => trans( 'article::widget.article.show_image' ), 'rule' => 'integer', 'default' => 0 ],
-            [ 'name' => 'show_author', 'title' => trans( 'article::widget.article.show_author' ), 'rule' => 'integer', 'default' => 0 ],
-            [ 'name' => 'show_datetime', 'title' => trans( 'article::widget.article.show_datetime' ), 'rule' => 'integer', 'default' => 0 ],
-            [ 'name' => 'show_summary', 'title' => trans( 'article::widget.article.show_summary' ), 'rule' => 'integer', 'default' => 0 ],
-            [ 'name' => 'show_readmore', 'title' => trans( 'article::widget.article.show_readmore' ), 'rule' => 'integer', 'default' => 0 ],
+            [
+                'name' => 'show_title',
+                'title' => trans('article::widget.article.show_title'),
+                'rule' => 'integer',
+                'default' => 0,
+            ],
+            [
+                'name' => 'show_image',
+                'title' => trans('article::widget.article.show_image'),
+                'rule' => 'integer',
+                'default' => 0,
+            ],
+            [
+                'name' => 'show_author',
+                'title' => trans('article::widget.article.show_author'),
+                'rule' => 'integer',
+                'default' => 0,
+            ],
+            [
+                'name' => 'show_datetime',
+                'title' => trans('article::widget.article.show_datetime'),
+                'rule' => 'integer',
+                'default' => 0,
+            ],
+            [
+                'name' => 'show_summary',
+                'title' => trans('article::widget.article.show_summary'),
+                'rule' => 'integer',
+                'default' => 0,
+            ],
+            [
+                'name' => 'show_readmore',
+                'title' => trans('article::widget.article.show_readmore'),
+                'rule' => 'integer',
+                'default' => 0,
+            ],
         ];
     }
-
 }

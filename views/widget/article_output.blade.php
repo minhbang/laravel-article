@@ -5,30 +5,32 @@
  * @var int $limit_title
  * @var int $limit_summary
  */
+$default = ['featured_image_ver' => '', 'format_datetime' => []];
+$options = (isset($options) ? (array) $options : []) + $widget->data + $default;
 ?>
 @if($article)
-    {!! $widget->data['show_readmore'] ? '':'<a href="'.$article->url.'">' !!}
-    @if($widget->data['show_image'])
-        <div class="article-image">{!! $article->present()->featured_image !!}</div>
+    {!! $options['show_readmore'] ? '':'<a href="'.$article->url.'">' !!}
+    @if($options['show_image'])
+        <div class="article-image">{!! $article->present()->featured_image($options['featured_image_ver']) !!}</div>
     @endif
-    @if($widget->data['show_title'])
+    @if($options['show_title'])
         <h3 class="article-title">{{mb_string_limit($article->title, $limit_title)}}</h3>
     @endif
-    @if($widget->data['show_datetime'] || $widget->data['show_author'])
+    @if($options['show_datetime'] || $options['show_author'])
         <div class="article-meta">
-            @if($widget->data['show_datetime'])
-                <span class="article-datetime">{!! $article->present()->updatedAt !!}</span>
+            @if($options['show_datetime'])
+                <span class="article-datetime">{!! $article->present()->updatedAt($options['format_datetime']) !!}</span>
             @endif
-            @if($widget->data['show_author'])
+            @if($options['show_author'])
                 <span class="article-author">{!! $article->present()->author !!}</span>
             @endif
         </div>
     @endif
-    @if($widget->data['show_summary'])
+    @if($options['show_summary'])
         <div class="article-summary">{{mb_string_limit($article->summary, $limit_summary)}}</div>
     @endif
-    @if($widget->data['show_readmore'])
+    @if($options['show_readmore'])
         <div class="article-readmore"><a href="{{$article->url}}">{{trans( 'common.read_more' )}} »</a></div>
     @endif
-    {!! $widget->data['show_readmore'] ? '':'</a>' !!}
+    {!! $options['show_readmore'] ? '':'</a>' !!}
 @endif

@@ -1,9 +1,9 @@
 <?php namespace Minhbang\Article\Widgets;
 
+use CategoryManager;
+use Minhbang\Article\Article;
 use Minhbang\Category\Category;
 use Minhbang\Layout\WidgetTypes\WidgetType;
-use Minhbang\Article\Article;
-use CategoryManager;
 
 /**
  * Class LatestArticlesWidget
@@ -13,13 +13,24 @@ use CategoryManager;
 class LatestArticlesWidget extends WidgetType
 {
     /**
+     * Danh sách templates
+     *
+     * @return array
+     */
+    public function getTemplates()
+    {
+        return trans('article::widget.latest_articles.templates');
+    }
+
+    /**
      * @param \Minhbang\Layout\Widget|string $widget
      *
      * @return string
      */
     public function titleBackend($widget)
     {
-        $title = ($category = $this->getCategory($widget)) ? $category->title : $widget;
+        $title = $widget->title ?
+            $widget->title : (($category = $this->getCategory($widget)) ? $category->title : $widget);
 
         return parent::titleBackend($title);
     }
@@ -33,6 +44,24 @@ class LatestArticlesWidget extends WidgetType
     }
 
     /**
+     * @return array
+     */
+    public function formOptions()
+    {
+        return ['width' => 'large'] + parent::formOptions();
+    }
+
+    /**
+     * @param \Minhbang\Layout\Widget $widget
+     *
+     * @return string
+     */
+    protected function before($widget)
+    {
+        return "<!--Begin Widget--><div id=\"{$widget->type}-{$widget->id}\" class=\"widget widget-{$widget->type} {$widget->data['template']} {$widget->css}\">";
+    }
+
+    /**
      * @param \Minhbang\Layout\Widget $widget
      *
      * @return Category|null
@@ -40,14 +69,6 @@ class LatestArticlesWidget extends WidgetType
     protected function getCategory($widget)
     {
         return empty($widget->data['category_id']) ? null : Category::find($widget->data['category_id']);
-    }
-
-    /**
-     * @return array
-     */
-    public function formOptions()
-    {
-        return ['width' => 'large'] + parent::formOptions();
     }
 
     /**
@@ -65,10 +86,10 @@ class LatestArticlesWidget extends WidgetType
      */
     protected function title($widget)
     {
-        $title = parent::title($widget);
         $category = $this->getCategory($widget);
+        $title = parent::title($widget->data['category_title'] && $category ? $category->title : $widget);
         if ($widget->data['show_link_category'] && $category) {
-            $title = '<a class="link-category" href="'.Article::getCategoryUrl($category).'">'.$title.'</a>';
+            $title = '<a href="'.Article::getCategoryUrl($category).'">'.$title.'</a>';
         }
 
         return $title;
@@ -82,11 +103,17 @@ class LatestArticlesWidget extends WidgetType
     protected function content($widget)
     {
         if ($category = $this->getCategory($widget)) {
-            $articles = Article::ready('read')->categorized($category)->orderUpdated()->take($widget->data['limit'])->get();
+            $articles =
+                Article::ready('read')->categorized($category)->orderUpdated()->take($widget->data['limit'])->get();
             $limit_title = setting('display.title_limit', 60);
             $limit_summary = setting('display.summary_limit', 500);
 
-            return view('article::widget.latest_articles_output', compact('widget', 'articles', 'limit_title', 'limit_summary'));
+            $view = "article::widget.latest_articles_output_{$widget->data['template']}";
+            if (! view()->exists($view)) {
+                $view = 'article::widget.latest_articles_output';
+            }
+
+            return view($view, compact('widget', 'articles', 'limit_title', 'limit_summary'))->render();
         } else {
             return '';
         }
@@ -158,6 +185,18 @@ class LatestArticlesWidget extends WidgetType
                 'title' => trans('article::widget.article.show_readmore'),
                 'rule' => 'integer',
                 'default' => 0,
+            ],
+            [
+                'name' => 'category_title',
+                'title' => trans('article::widget.latest_articles.category_title'),
+                'rule' => 'integer',
+                'default' => 0,
+            ],
+            [
+                'name' => 'template',
+                'title' => trans('article::widget.latest_articles.template'),
+                'rule' => 'required',
+                'default' => 'default',
             ],
         ];
     }

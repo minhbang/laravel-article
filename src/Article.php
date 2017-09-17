@@ -2,7 +2,6 @@
 
 namespace Minhbang\Article;
 
-use Illuminate\Database\Eloquent\Collection;
 use Laracasts\Presenter\PresentableTrait;
 use Minhbang\Category\Categorized;
 use Minhbang\Image\ImageableModel as Model;
@@ -10,9 +9,9 @@ use Minhbang\Kit\Traits\Model\AttributeQuery;
 use Minhbang\Kit\Traits\Model\DatetimeQuery;
 use Minhbang\Kit\Traits\Model\FeaturedImage;
 use Minhbang\Kit\Traits\Model\SearchQuery;
+use Minhbang\Status\Traits\Statusable;
 use Minhbang\Tag\Taggable;
 use Minhbang\User\Support\HasOwner;
-use Minhbang\Status\Traits\Statusable;
 
 /**
  * Class Article
@@ -60,7 +59,7 @@ use Minhbang\Status\Traits\Statusable;
  * @method static \Illuminate\Database\Eloquent\Builder|\Minhbang\Article\Article searchWhere($column, $operator = '=', $fn = null)
  * @method static \Illuminate\Database\Eloquent\Builder|\Minhbang\Article\Article searchWhereBetween($column, $fn = null)
  * @method static \Illuminate\Database\Eloquent\Builder|\Minhbang\Article\Article searchWhereIn($column, $fn)
- * @method static \Illuminate\Database\Eloquent\Builder|\Minhbang\Article\Article searchWhereInDependent($column, $column_dependent, $fn, $empty = array())
+ * @method static \Illuminate\Database\Eloquent\Builder|\Minhbang\Article\Article searchWhereInDependent($column, $column_dependent, $fn, $empty = [])
  * @method static \Illuminate\Database\Eloquent\Builder|\Minhbang\Article\Article status($status)
  * @method static \Illuminate\Database\Eloquent\Builder|\Minhbang\Article\Article tagged($tags, $all = false)
  * @method static \Illuminate\Database\Eloquent\Builder|\Minhbang\Article\Article taggedAll($tags)
@@ -87,7 +86,8 @@ use Minhbang\Status\Traits\Statusable;
  * @method static \Illuminate\Database\Eloquent\Builder|\Minhbang\Article\Article yesterday($same_time = false, $field = 'created_at')
  * @mixin \Eloquent
  */
-class Article extends Model {
+class Article extends Model
+{
     use AttributeQuery;
     use DatetimeQuery;
     use Categorized;
@@ -99,27 +99,42 @@ class Article extends Model {
     use PresentableTrait;
 
     protected $presenter = ArticlePresenter::class;
+
     protected $table = 'articles';
-    protected $fillable = [ 'title', 'slug', 'summary', 'content', 'category_id', 'tag_names', 'status' ];
-    protected $dates = [ 'published_at' ];
+
+    protected $fillable = ['title', 'slug', 'summary', 'content', 'category_id', 'tag_names', 'status'];
+
+    protected $dates = ['published_at'];
 
     /**
      * Article constructor.
      *
      * @param array $attributes
      */
-    public function __construct( array $attributes = [] ) {
-        parent::__construct( $attributes );
-        $this->config( [
-            'featured_image' => config( 'article.featured_image' ),
-        ] );
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->config([
+            'featured_image' => config('article.featured_image'),
+        ]);
+    }
+
+    /**
+     * @param \Minhbang\Category\Category $category
+     *
+     * @return string
+     */
+    public static function getCategoryUrl($category)
+    {
+        return '#'.$category->id;
     }
 
     /**
      * @return array Các attributes có thể insert image
      */
-    public function imageables() {
-        return [ 'content' ];
+    public function imageables()
+    {
+        return ['content'];
     }
 
     /**
@@ -127,8 +142,9 @@ class Article extends Model {
      *
      * @return \Illuminate\Database\Query\Builder
      */
-    public function scopeQueryDefault( $query ) {
-        return $query->select( "{$this->table}.*" );
+    public function scopeQueryDefault($query)
+    {
+        return $query->select("{$this->table}.*");
     }
 
     /**
@@ -140,8 +156,9 @@ class Article extends Model {
      *
      * @return \Illuminate\Database\Query\Builder|\Minhbang\Article\Article
      */
-    public function scopeForSelectize( $query, $find = null, $take = 10 ) {
-        return $this->scopeFindText( $query, [ 'title', 'slug' ], $find )->select( [ 'id', 'title' ] )->take( $take );
+    public function scopeForSelectize($query, $find = null, $take = 10)
+    {
+        return $this->scopeFindText($query, ['title', 'slug'], $find)->select(['id', 'title'])->take($take);
     }
 
     /**
@@ -150,17 +167,9 @@ class Article extends Model {
      *
      * @return string
      */
-    public function getUrlAttribute() {
-        return route( 'article.show', [ 'article' => $this->id, 'slug' => $this->slug ] );
-    }
-
-    /**
-     * @param \Minhbang\Category\Category $category
-     *
-     * @return string
-     */
-    public static function getCategoryUrl( $category ) {
-        return '#' . $category->id;
+    public function getUrlAttribute()
+    {
+        return route('article.show', ['article' => $this->id, 'slug' => $this->slug]);
     }
 
     /**
@@ -168,8 +177,9 @@ class Article extends Model {
      *
      * @param string $value
      */
-    public function setContentAttribute( $value ) {
-        $this->attributes['content'] = clean( $value );
+    public function setContentAttribute($value)
+    {
+        $this->attributes['content'] = clean($value);
     }
 
     /**
@@ -182,18 +192,24 @@ class Article extends Model {
      *
      * @return \Minhbang\Article\Article[]
      */
-    public function getRelated( $take = 5 ) {
-        if ( ( $category = $this->category ) && ( $tagNames = $this->tagNames() ) ) {
-            return Article::queryDefault()->ready('read')->take( $take )->categorized( $category->getRoot() )->except( $this->id )
-                          ->taggedAll( $tagNames )->orderByMatchedTag( $tagNames )->orderUpdated()->get()->all();
+    public function getRelated($take = 5)
+    {
+        if (($category = $this->category) && ($tagNames = $this->tagNames())) {
+            return Article::queryDefault()->ready('read')->take($take)->categorized($category->getRoot())->except($this->id)
+                ->taggedAll($tagNames)->orderByMatchedTag($tagNames)->orderUpdated()->get()->all();
         } else {
             return [];
         }
     }
 
+    /**
+     * Cập nhật đã xem
+     */
     public function updateHit()
     {
-        Article::where('id', $this->id)->increment('hit');
+        $this->timestamps = false;
         $this->hit++;
+        $this->save();
+        $this->timestamps = true;
     }
 }

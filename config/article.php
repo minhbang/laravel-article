@@ -5,7 +5,7 @@ return [
     'featured_image' => [
         'dir' => 'images/articles',
         'width' => 490,
-        'height' => 240,
+        'height' => 294,
         'width_sm' => 110,
         'height_sm' => 80,
     ],
@@ -19,7 +19,7 @@ return [
      */
     'middlewares' => [
         'frontend' => ['web'],
-        'backend' => ['web', 'role:sys.admin'],
+        'backend' => ['web', 'auth'],
     ],
 
     // Định nghĩa menus cho category
