@@ -3,7 +3,7 @@
 namespace Minhbang\Article\Controllers;
 
 use CategoryManager;
-use Datatables;
+use DataTables;
 use Minhbang\Article\Article;
 use Minhbang\Article\ArticleTransformer;
 use Minhbang\Article\Request as ArticleRequest;
@@ -115,7 +115,7 @@ class BackendController extends BaseController
                 ->searchWhereBetween('articles.updated_at', 'mb_date_vn2mysql');
         }
 
-        return Datatables::of($query)->setTransformer(new ArticleTransformer())->make(true);
+        return DataTables::of($query)->setTransformer(new ArticleTransformer())->make(true);
     }
 
     /**
