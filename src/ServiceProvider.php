@@ -29,7 +29,6 @@ class ServiceProvider extends BaseServiceProvider
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'article');
         $this->loadViewsFrom(__DIR__.'/../views', 'article');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         $this->publishes([
                 __DIR__.'/../views' => base_path('resources/views/vendor/article'),
@@ -42,6 +41,7 @@ class ServiceProvider extends BaseServiceProvider
         $router->pattern('article', '[0-9]+');
         // model bindings
         $router->model('article', $class);
+        $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         Kit::alias($class, 'article');
         Kit::title($class, trans('article::common.article'));
