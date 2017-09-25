@@ -4,13 +4,14 @@ namespace Minhbang\Article\Controllers;
 
 use CategoryManager;
 use Datatables;
+use Illuminate\Http\Request;
 use Minhbang\Article\Article;
 use Minhbang\Article\ArticleTransformer;
 use Minhbang\Article\Request as ArticleRequest;
 use Minhbang\Kit\Extensions\BackendController as BaseController;
 use Minhbang\Kit\Extensions\DatatableBuilder as Builder;
+use Minhbang\Kit\Traits\Controller\CheckDatatablesInput;
 use Minhbang\Kit\Traits\Controller\QuickUpdateActions;
-use Request;
 use Session;
 use Status;
 
@@ -23,6 +24,7 @@ use Status;
 class BackendController extends BaseController
 {
     use QuickUpdateActions;
+    use CheckDatatablesInput;
 
     /**
      * @var \Minhbang\Category\Root
@@ -103,13 +105,15 @@ class BackendController extends BaseController
     /**
      * Danh sách Article theo định dạng của Datatables.
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function data()
+    public function data(Request $request)
     {
+        $this->abortIfInvalidDatatablesColumnInput($request);
         $query =
             Article::queryDefault()->ready('update')->withAuthor()->orderUpdated()->categorized($this->categoryManager->node());
-        if (Request::has('search_form')) {
+        if ($request->has('search_form')) {
             $query = $query
                 ->searchWhereBetween('articles.created_at', 'mb_date_vn2mysql')
                 ->searchWhereBetween('articles.updated_at', 'mb_date_vn2mysql');
