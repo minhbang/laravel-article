@@ -110,7 +110,7 @@ class BackendController extends BaseController
      */
     public function data(Request $request)
     {
-        $this->abortIfInvalidDatatablesColumnInput($request);
+        $this->filterDatatablesParametersOrAbort($request);
         $query =
             Article::queryDefault()->ready('update')->withAuthor()->orderUpdated()->categorized($this->categoryManager->node());
         if ($request->has('search_form')) {
