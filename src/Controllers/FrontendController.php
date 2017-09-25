@@ -2,11 +2,11 @@
 
 namespace Minhbang\Article\Controllers;
 
+use CategoryManager;
+use Illuminate\Http\Request;
+use Minhbang\Article\Article;
 use Minhbang\Category\Category;
 use Minhbang\Kit\Extensions\Controller;
-use Minhbang\Article\Article;
-use CategoryManager;
-use Request;
 
 /**
  * Todo: tag action
@@ -41,11 +41,12 @@ class FrontendController extends Controller
     /**
      * Kết quả tìm kiếm
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function search()
+    public function search(Request $request)
     {
-        $q = Request::get('q');
+        $q = $request->get('q');
         $articles = $q ? Article::ready('read')->queryDefault()->withAuthor()->searchKeyword($q, [
             'title',
             'slug',
@@ -68,7 +69,8 @@ class FrontendController extends Controller
     {
         abort_unless($slug && ($category = Category::findBySlug($slug)), 404, trans('category::common.not_fount'));
         CategoryManager::current($category);
-        $articles = Article::queryDefault()->ready('read')->withAuthor()->categorized($category)->orderUpdated()->paginate(setting('display.category_page_limit', 7));
+        $articles =
+            Article::queryDefault()->ready('read')->withAuthor()->categorized($category)->orderUpdated()->paginate(setting('display.category_page_limit', 7));
         $this->buildHeading($category->title, 'fa-sitemap', $this->getBreadcrumbs($category));
         $view = "article::frontend.category-{$category->slug}";
         $view = view()->exists($view) ? $view : 'article::frontend.category';
@@ -88,7 +90,8 @@ class FrontendController extends Controller
     {
         abort_unless(($article->slug == $slug) && $article->isReady('read'), 404, trans('article::common.not_found'));
         $related = $article->getRelated();
-        $breadcrumbs = $article->category ? $this->buildBreadcrumbs($this->getBreadcrumbs($article->category, $article)) : [];
+        $breadcrumbs =
+            $article->category ? $this->buildBreadcrumbs($this->getBreadcrumbs($article->category, $article)) : [];
         $this->buildHeading($article->title, 'fa-newspaper-o', $breadcrumbs);
         $article->updateHit();
 
