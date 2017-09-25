@@ -3,12 +3,8 @@
 namespace Minhbang\Article\Controllers;
 
 use CategoryManager;
-<<<<<<< HEAD
 use DataTables;
-=======
-use Datatables;
 use Illuminate\Http\Request;
->>>>>>> 61d007b... Fix: Model binding trước > load routes
 use Minhbang\Article\Article;
 use Minhbang\Article\ArticleTransformer;
 use Minhbang\Article\Request as ArticleRequest;
@@ -47,11 +43,12 @@ class BackendController extends BaseController
     /**
      * Phục vụ data cho selectize articles
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function select()
+    public function select(Request $request)
     {
-        return response()->json(Article::forSelectize(Request::get('title'))->get()->all());
+        return response()->json(Article::forSelectize($request->get('title'))->get()->all());
     }
 
     /**
@@ -114,7 +111,7 @@ class BackendController extends BaseController
      */
     public function data(Request $request)
     {
-        $this->abortIfInvalidDatatablesColumnInput($request);
+        $this->filterDatatablesParametersOrAbort($request);
         $query =
             Article::queryDefault()->ready('update')->withAuthor()->orderUpdated()->categorized($this->categoryManager->node());
         if ($request->has('search_form')) {
