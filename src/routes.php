@@ -1,6 +1,7 @@
 <?php
 // Frontend
 Route::group([
+    'domain' => env('APP_DOMAIN', 'localhost'),
     'prefix' => 'article',
     'namespace' => 'Minhbang\Article\Controllers',
     'as' => 'article.',
