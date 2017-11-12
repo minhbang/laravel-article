@@ -50,7 +50,7 @@ class ServiceProvider extends BaseServiceProvider
         MenuManager::registerMenuTypes(config('article.menuTypes'));
         MenuManager::addItems(config('article.menus'));
         Authority::permission()->registerCRUD($class);
-        Kit::writeablePath('my_upload:'.config('article.featured_image.dir'), 'trans::article::common.featured_image_dir');
+        Kit::writeablePath('upload:'.config('article.featured_image.dir'), 'trans::article::common.featured_image_dir');
         Layout::registerWidgetTypes(config('article.widgets'));
     }
 

@@ -1,7 +1,7 @@
 <?php
 
 return [
-    // Hình đại diện của bài viết, lưu trong thư mục con của <my_upload:>
+    // Hình đại diện của bài viết, lưu trong thư mục con của <upload:>
     'featured_image' => [
         'dir' => 'images/articles',
         'width' => 490,
