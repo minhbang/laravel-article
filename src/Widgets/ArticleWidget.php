@@ -70,44 +70,44 @@ class ArticleWidget extends WidgetType
         return [
             [
                 'name' => 'article_id',
-                'title' => trans('article::widget.article.id'),
+                'title' => __('Article'),
                 'rule' => 'required|integer',
                 'default' => null,
             ],
             // Common Article Params
             [
                 'name' => 'show_title',
-                'title' => trans('article::widget.article.show_title'),
+                'title' => __('Show article title?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'show_image',
-                'title' => trans('article::widget.article.show_image'),
+                'title' => __('Show article featured image?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'show_author',
-                'title' => trans('article::widget.article.show_author'),
+                'title' => __('Show article author?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'show_datetime',
-                'title' => trans('article::widget.article.show_datetime'),
+                'title' => __('Show article datetime?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'show_summary',
-                'title' => trans('article::widget.article.show_summary'),
+                'title' => __('Show artile summary?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'show_readmore',
-                'title' => trans('article::widget.article.show_readmore'),
+                'title' => __('Show readmore link?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],

@@ -30,7 +30,7 @@ $options = (isset($options) ? (array) $options : []) + $widget->data + $default;
         <div class="article-summary">{{mb_string_limit($article->summary, $limit_summary)}}</div>
     @endif
     @if($options['show_readmore'])
-        <div class="article-readmore"><a href="{{$article->url}}">{{trans( 'common.read_more' )}} »</a></div>
+        <div class="article-readmore"><a href="{{$article->url}}">{{__('Read more' )}} »</a></div>
     @endif
     {!! $options['show_readmore'] ? '':'</a>' !!}
 @endif

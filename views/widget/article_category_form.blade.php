@@ -6,7 +6,7 @@
         <div class="col-xs-8">
             <div class="form-group {{ $errors->has("category_id") ? ' has-error':'' }}">
                 {!! Form::label("category_id", $labels['category_id'], ['class' => "control-label"]) !!}
-                {!! Form::select('category_id', $widget->typeInstance()->getCategories(), null, ['prompt' =>trans( 'category::common.select_category' ), 'class' => 'form-control selectize-tree']) !!}
+                {!! Form::select('category_id', $widget->typeInstance()->getCategories(), null, ['prompt' =>__('Select category...' ), 'class' => 'form-control selectize-tree']) !!}
                 @if($errors->has('category_id'))
                     <p class="help-block">{{ $errors->first('category_id') }}</p>
                 @endif
@@ -14,7 +14,7 @@
             <div class="form-group {{ $errors->has("route_show") ? ' has-error':'' }}">
                 {!! Form::label("route_show", $labels['route_show'], ['class' => "control-label"]) !!}
                 {!! Form::select(
-                    "route_show", $widget->typeInstance()->getRoutes(), null, ['prompt' => trans('layout::common.select_route'), 'class' => 'form-control selectize'])
+                    "route_show", $widget->typeInstance()->getRoutes(), null, ['prompt' => __('Select route...'), 'class' => 'form-control selectize'])
                 !!}
                 @if($errors->has('route_show'))
                     <p class="help-block">{{ $errors->first('route_show') }}</p>

@@ -105,7 +105,7 @@ class ArticlePresenter extends Presenter
         $datetime = $this->entity->{$datetime} ?: $this->entity->updated_at;
         $br = $br ? '<br>' : ' — ';
         $html = $author ? '<strong>'.(is_string($author) ? $author : $this->entity->author)."</strong>$br" : '';
-        $html .= trans('article::common.meta', [
+        $html .= __(':datetime — :hit view', [
             'datetime' => $this->formatDatetime($datetime, $datetimeOptions),
             'hit' => $this->entity->hit,
         ]);

@@ -53,7 +53,7 @@ class FrontendController extends Controller
             'summary',
             'content',
         ])->paginate(5) : null;
-        $this->buildHeading(trans('common.search'), 'fa-search', ['#' => trans('common.search')]);
+        $this->buildHeading(__('Search'), 'fa-search', ['#' => __('Search')]);
 
         return view('article::frontend.search', compact('articles', 'q'));
     }
@@ -67,7 +67,7 @@ class FrontendController extends Controller
      */
     public function category($slug)
     {
-        abort_unless($slug && ($category = Category::findBySlug($slug)), 404, trans('category::common.not_fount'));
+        abort_unless($slug && ($category = Category::findBySlug($slug)), 404, __('Category not found.'));
         CategoryManager::current($category);
         $articles =
             Article::queryDefault()->ready('read')->withAuthor()->categorized($category)->orderUpdated()->paginate(setting('display.category_page_limit', 7));
@@ -88,7 +88,7 @@ class FrontendController extends Controller
      */
     public function show(Article $article, $slug)
     {
-        abort_unless(($article->slug == $slug) && $article->isReady('read'), 404, trans('article::common.not_found'));
+        abort_unless(($article->slug == $slug) && $article->isReady('read'), 404, __('No articles found!'));
         $related = $article->getRelated();
         $breadcrumbs =
             $article->category ? $this->buildBreadcrumbs($this->getBreadcrumbs($article->category, $article)) : [];

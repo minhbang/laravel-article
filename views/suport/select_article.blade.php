@@ -2,7 +2,7 @@
 
 use Minhbang\Article\Article;
 
-$articles = ['' => trans('article::common.select_article')] + Article::forSelectize()->pluck('title', 'id')->all();
+$articles = ['' => __('Select article...')] + Article::forSelectize()->pluck('title', 'id')->all();
 if ($article = empty($selected_id) ? null : Article::find($selected_id)) {
     $articles = $articles + [$selected_id => $article->title];
 }

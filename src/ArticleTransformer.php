@@ -19,7 +19,7 @@ class ArticleTransformer extends ModelTransformer
                 $article->title,
                 [
                     'attr'  => 'title',
-                    'title' => trans("article::common.title"),
+                    'title' => __("Title"),
                     'class' => 'w-lg',
                 ]
             ),
@@ -30,7 +30,7 @@ class ArticleTransformer extends ModelTransformer
                 "{$this->zone}.article",
                 ['article' => $article->id],
                 $article->title,
-                trans("article::common.article"),
+                __("Article"),
                 [
                     'renderPreview' => 'modal-large',
                     'renderEdit'    => 'link',

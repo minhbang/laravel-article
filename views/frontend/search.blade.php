@@ -8,21 +8,21 @@
 
 @section('content')
     <div class="content-heading">
-        {{trans('common.search_result')}}: <span>{{$q}}</span>
+        {{__('Search result')}}: <span>{{$q}}</span>
     </div>
     {!! Form::open(['method' => 'post']) !!}
     <div class="input-group">
-        {!! Form::text('q', $q, ['class' => 'form-control', 'placeholder' => trans('common.keyword').'...']) !!}
+        {!! Form::text('q', $q, ['class' => 'form-control', 'placeholder' => __('Keyword').'...']) !!}
         <span class="input-group-btn"><button class="btn" type="submit"><i class="fa fa-search"></i></button></span>
     </div>
     {!! Form::close() !!}
     @if(empty($q))
         <br>
-        <div class="alert alert-info">{{trans('article::common.query_empty')}}</div>
+        <div class="alert alert-info">{{__('Enter keywords to search for articles!')}}</div>
     @else
         @if(is_null($articles))
             <br>
-            <div class="alert alert-warning">{{trans('article::common.not_fount')}}</div>
+            <div class="alert alert-warning">{{__('No articles found!')}}</div>
         @else
             <div class="articles articles-list">
                 @foreach($articles as $article)

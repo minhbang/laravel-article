@@ -9,7 +9,7 @@
                     <div class="col-xs-8">
                         <div class="form-group {{ $errors->has("category_id") ? ' has-error':'' }}">
                             {!! Form::label("category_id", $labels['category_id'], ['class' => "control-label"]) !!}
-                            {!! Form::select('category_id', $widget->typeInstance()->getCategories(), null, ['prompt' =>trans( 'category::common.select_category' ), 'class' => 'form-control selectize-tree']) !!}
+                            {!! Form::select('category_id', $widget->typeInstance()->getCategories(), null, ['prompt' =>__('Select category...' ), 'class' => 'form-control selectize-tree']) !!}
                             @if($errors->has('category_id'))
                                 <p class="help-block">{{ $errors->first('category_id') }}</p>
                             @endif
@@ -27,7 +27,7 @@
                         <div class="form-group {{ $errors->has('category_title') ? ' has-error':'' }}">
                             {!! Form::label('category_title',  $labels['category_title'], ['class'=> 'control-label']) !!}
                             <br>
-                            {!! Form::checkbox('category_title', 1, null,['class'=>'switch', 'data-on-text'=>trans('common.yes'), 'data-off-text'=>trans('common.no')]) !!}
+                            {!! Form::checkbox('category_title', 1, null,['class'=>'switch', 'data-on-text'=>__('Yes'), 'data-off-text'=>__('No')]) !!}
                             @if($errors->has('category_title'))
                                 <p class="help-block">{{ $errors->first('category_title') }}</p>
                             @endif
@@ -35,7 +35,7 @@
                         <div class="form-group {{ $errors->has('show_link_category') ? ' has-error':'' }}">
                             {!! Form::label('show_link_category',  $labels['show_link_category'], ['class'=> 'control-label']) !!}
                             <br>
-                            {!! Form::checkbox('show_link_category', 1, null,['class'=>'switch', 'data-on-text'=>trans('common.yes'), 'data-off-text'=>trans('common.no')]) !!}
+                            {!! Form::checkbox('show_link_category', 1, null,['class'=>'switch', 'data-on-text'=>__('Yes'), 'data-off-text'=>__('No')]) !!}
                             @if($errors->has('show_link_category'))
                                 <p class="help-block">{{ $errors->first('show_link_category') }}</p>
                             @endif
@@ -52,7 +52,7 @@
                 <div class="form-group{{ $errors->has('item_css') ? ' has-error':'' }}">
                     {!! Form::label('label', $labels['item_css'], ['class' => 'control-label']) !!}
                     {!! Form::text('item_css', null, ['class' => 'form-control']) !!}
-                    <p class="help-block">{!! $errors->has('item_css') ? $errors->first('item_css'): trans('article::widget.latest_articles.item_css_hint')  !!}</p>
+                    <p class="help-block">{!! $errors->has('item_css') ? $errors->first('item_css'): __('Separated with <code>|</code>, will repeat, exp: <code>col-md-4 wow fadeInLeft|col-md-4 wow zoomIn|col-md-4 wow fadeInRight</code>')  !!}</p>
                 </div>
             </div>
         </div>

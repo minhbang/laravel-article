@@ -44,7 +44,7 @@ class ArticleMenu extends MenuType
         return [
             [
                 'name' => 'article_id',
-                'title' => trans('article::menu.article.article_id'),
+                'title' => __('Article'),
                 'rule' => 'required|integer',
                 'default' => null,
             ],

@@ -60,7 +60,7 @@ class BackendController extends BaseController
     {
         $typeName = $this->categoryManager->typeName();
         $this->buildHeading(
-            [trans('common.manage'), $typeName],
+            [__('Manage'), $typeName],
             'fa-newspaper-o',
             ['#' => $typeName]
         );
@@ -71,24 +71,24 @@ class BackendController extends BaseController
             [
                 'data' => 'title',
                 'name' => 'title',
-                'title' => trans('article::common.title'),
+                'title' => __('Title'),
             ],
             [
                 'data' => 'author',
                 'name' => 'users.username',
-                'title' => trans('article::common.user'),
+                'title' => __('Author'),
                 'class' => 'min-width',
             ],
             [
                 'data' => 'updated_at',
                 'name' => 'updated_at',
-                'title' => trans('common.updated_at'),
+                'title' => __('Updated at'),
                 'class' => 'min-width',
             ],
             [
                 'data' => 'status',
                 'name' => 'status',
-                'title' => trans('common.status'),
+                'title' => __('Status'),
                 'class' => 'min-width',
                 'orderable' => false,
                 'searchable' => false,
@@ -96,7 +96,7 @@ class BackendController extends BaseController
         ])->addAction([
             'data' => 'actions',
             'name' => 'actions',
-            'title' => trans('common.actions'),
+            'title' => __('Actions'),
             'class' => 'min-width',
         ]);
 
@@ -137,11 +137,11 @@ class BackendController extends BaseController
         $categories = $this->categoryManager->selectize();
         $selectize_statuses = Status::of(Article::class)->groupByLevel();
         $this->buildHeading(
-            [trans('common.create'), $typeName],
+            [__('Create'), $typeName],
             'plus-sign',
             [
                 route('backend.article.index') => $typeName,
-                '#' => trans('common.create'),
+                '#' => __('Create'),
             ]
         );
 
@@ -165,7 +165,7 @@ class BackendController extends BaseController
             'message',
             [
                 'type' => 'success',
-                'content' => trans('common.create_object_success', ['name' => $this->categoryManager->typeName()]),
+                'content' => __('Create new <strong>:name</strong> success', ['name' => $this->categoryManager->typeName()]),
             ]
         );
 
@@ -181,16 +181,16 @@ class BackendController extends BaseController
     {
         $typeName = $this->categoryManager->typeName();
         $this->buildHeading(
-            [trans('common.view_detail'), $typeName],
+            [__('View detail'), $typeName],
             'list',
             [
                 route('backend.article.index') => $typeName,
-                '#' => trans('common.view_detail'),
+                '#' => __('View detail'),
             ],
             [
                 [
                     route('backend.article.edit', ['article' => $article->id]),
-                    trans('common.edit'),
+                    __('Edit'),
                     ['type' => 'primary', 'size' => 'sm', 'icon' => 'edit'],
                 ],
             ]
@@ -216,7 +216,7 @@ class BackendController extends BaseController
      */
     public function edit(Article $article)
     {
-        abort_unless($article->isReady('update'), 403, trans('common.forbidden'));
+        abort_unless($article->isReady('update'), 403, __('You do not have permission to access this feature!'));
         $url = route('backend.article.update', ['article' => $article->id]);
         $method = 'put';
         $allTags = Article::usedTagNames();
@@ -224,11 +224,11 @@ class BackendController extends BaseController
         $categories = $this->categoryManager->selectize();
         $selectize_statuses = Status::of(Article::class)->groupByLevel();
         $this->buildHeading(
-            [trans('common.update'), $typeName],
+            [__('Update'), $typeName],
             'edit',
             [
                 route('backend.article.index') => $typeName,
-                '#' => trans('common.edit'),
+                '#' => __('Edit'),
             ]
         );
 
@@ -244,7 +244,7 @@ class BackendController extends BaseController
     public function update(ArticleRequest $request, Article $article)
     {
         $article->timestamps = false; // TODO Set tạm thời
-        abort_unless($article->isReady('update'), 403, trans('common.forbidden'));
+        abort_unless($article->isReady('update'), 403, __('You do not have permission to access this feature!'));
         $article->fill($request->all());
         $article->fillFeaturedImage($request, true);
         //$article->fillStatus($request->get('s'));
@@ -253,7 +253,7 @@ class BackendController extends BaseController
             'message',
             [
                 'type' => 'success',
-                'content' => trans('common.update_object_success', ['name' => $this->categoryManager->typeName()]),
+                'content' => __('Update <strong>:name</strong> success', ['name' => $this->categoryManager->typeName()]),
             ]
         );
 
@@ -268,13 +268,13 @@ class BackendController extends BaseController
      */
     public function destroy(Article $article)
     {
-        abort_unless($article->isReady('delete'), 403, trans('common.forbidden'));
+        abort_unless($article->isReady('delete'), 403, __('You do not have permission to access this feature!'));
         $article->delete();
 
         return response()->json(
             [
                 'type' => 'success',
-                'content' => trans('common.delete_object_success', ['name' => $this->categoryManager->typeName()]),
+                'content' => __('Delete <strong>:name</strong> success', ['name' => $this->categoryManager->typeName()]),
             ]
         );
     }
@@ -287,7 +287,7 @@ class BackendController extends BaseController
      */
     public function status(Article $article, $status)
     {
-        abort_unless($article->isReady('update'), 403, trans('common.forbidden'));
+        abort_unless($article->isReady('update'), 403, __('You do not have permission to access this feature!'));
         $result = $article->update(['status' => $status]) ? 'success' : 'error';
 
         return response()->json(['type' => $result, 'content' => trans("common.status_{$result}")]);
@@ -303,7 +303,7 @@ class BackendController extends BaseController
         return [
             'title' => [
                 'rules' => 'required|max:255',
-                'label' => trans('article::common.title'),
+                'label' => __('Title'),
             ],
         ];
     }

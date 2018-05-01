@@ -52,6 +52,6 @@ class ArticleManageTest extends TestCase
     public function testSuperAdminAccessManagementPage()
     {
         $this->actingAs($this->users['super_admin'])->visit('/backend/article')
-            ->see(trans('common.manage'));
+            ->see(__('Manage'));
     }
 }

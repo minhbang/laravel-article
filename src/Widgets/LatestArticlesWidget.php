@@ -19,7 +19,13 @@ class LatestArticlesWidget extends WidgetType
      */
     public function getTemplates()
     {
-        return trans('article::widget.latest_articles.templates');
+        return [
+            'default' => __('Default'),
+            'style1' => __('Style 1'),
+            'style2' => __('Style 2'),
+            'style3' => __('Style 3'),
+            'slider' => __('Slider'),
+        ];
     }
 
     /**
@@ -89,7 +95,7 @@ class LatestArticlesWidget extends WidgetType
         $category = $this->getCategory($widget);
         $title = parent::title($widget->data['category_title'] && $category ? $category->title : $widget);
         if ($widget->data['show_link_category'] && $category) {
-            $title = '<a href="'.Article::getCategoryUrl($category).'">'.$title.'</a>';
+            $title = '<a href="' . Article::getCategoryUrl($category) . '">' . $title . '</a>';
         }
 
         return $title;
@@ -109,7 +115,7 @@ class LatestArticlesWidget extends WidgetType
             $limit_summary = setting('display.summary_limit', 500);
 
             $view = "article::widget.latest_articles_output_{$widget->data['template']}";
-            if (! view()->exists($view)) {
+            if ( ! view()->exists($view)) {
                 $view = 'article::widget.latest_articles_output';
             }
 
@@ -127,74 +133,74 @@ class LatestArticlesWidget extends WidgetType
         return [
             [
                 'name' => 'category_id',
-                'title' => trans('article::widget.latest_articles.category_id'),
+                'title' => __('Category'),
                 'rule' => 'required|integer',
                 'default' => null,
             ],
             [
                 'name' => 'show_link_category',
-                'title' => trans('article::widget.latest_articles.show_link_category'),
+                'title' => __('Show category link'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'limit',
-                'title' => trans('article::widget.latest_articles.limit'),
+                'title' => __('Articles limit'),
                 'rule' => 'required|integer|min:1',
                 'default' => 3,
             ],
             [
                 'name' => 'item_css',
-                'title' => trans('article::widget.latest_articles.item_css'),
+                'title' => __('Item CSS'),
                 'rule' => 'max:255',
                 'default' => '',
             ],
             // Common Article Params
             [
                 'name' => 'show_title',
-                'title' => trans('article::widget.article.show_title'),
+                'title' => __('Show article title?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'show_image',
-                'title' => trans('article::widget.article.show_image'),
+                'title' => __('Show article featured image?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'show_author',
-                'title' => trans('article::widget.article.show_author'),
+                'title' => __('Show article author?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'show_datetime',
-                'title' => trans('article::widget.article.show_datetime'),
+                'title' => __('Show article datetime?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'show_summary',
-                'title' => trans('article::widget.article.show_summary'),
+                'title' => __('Show artile summary?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'show_readmore',
-                'title' => trans('article::widget.article.show_readmore'),
+                'title' => __('Show readmore link?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'category_title',
-                'title' => trans('article::widget.latest_articles.category_title'),
+                'title' => __('Title is category title?'),
                 'rule' => 'integer',
                 'default' => 0,
             ],
             [
                 'name' => 'template',
-                'title' => trans('article::widget.latest_articles.template'),
+                'title' => __('Template'),
                 'rule' => 'required',
                 'default' => 'default',
             ],

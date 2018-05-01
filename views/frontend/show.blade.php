@@ -18,7 +18,7 @@
     @if($related)
         <div class="articles articles-related">
             <div class="articles-related-title">
-                <h4>{{trans('common.related_objects', ['name' => trans('article::common.article')])}}</h4>
+                <h4>{{__('Related :name', ['name' => __('Article')])}}</h4>
             </div>
             <div class="row">
                 @foreach($related as $a)

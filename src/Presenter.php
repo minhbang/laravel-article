@@ -98,8 +98,7 @@ class Presenter
     {
         $br = $br ? '<br>' : ' — ';
         $html = $author ? '<strong>'.(is_string($author) ? $author : $article->author)."</strong>$br" : '';
-        $html .= trans(
-            'article::common.meta',
+        $html .= __(':datetime — :hit view',
             [
                 'datetime' => $this->formatDatetime($article->{$datetime}, $datetimeOptions),
                 'hit' => $article->hit,

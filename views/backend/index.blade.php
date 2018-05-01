@@ -2,11 +2,11 @@
 @section('content')
     <div class="ibox ibox-table">
         <div class="ibox-title">
-            <h5>{!! trans('article::common.manage_title', ['name' => $typeName]) !!}</h5>
+            <h5>{!! __(':name list', ['name' => $typeName]) !!}</h5>
             <div class="buttons">
-                {!! Html::linkButton('#', trans('common.filter'), ['class'=>'advanced_filter_collapse','type'=>'info', 'size'=>'xs', 'icon' => 'filter']) !!}
-                {!! Html::linkButton('#', trans('common.all'), ['class'=>'advanced_filter_clear', 'type'=>'warning', 'size'=>'xs', 'icon' => 'list']) !!}
-                {!! Html::linkButton(route('backend.article.create'), trans('common.create'), ['type'=>'success', 'size'=>'xs', 'icon' => 'plus-sign']) !!}
+                {!! Html::linkButton('#', __('Filter'), ['class'=>'advanced_filter_collapse','type'=>'info', 'size'=>'xs', 'icon' => 'filter']) !!}
+                {!! Html::linkButton('#', __('All'), ['class'=>'advanced_filter_clear', 'type'=>'warning', 'size'=>'xs', 'icon' => 'list']) !!}
+                {!! Html::linkButton(route('backend.article.create'), __('Create'), ['type'=>'success', 'size'=>'xs', 'icon' => 'plus-sign']) !!}
             </div>
         </div>
         <div class="ibox-content">
@@ -16,7 +16,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                {!! Form::label('filter_created_at', trans('common.created_at'), ['class' => 'col-md-3 control-label']) !!}
+                                {!! Form::label('filter_created_at', __('Created at'), ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     {!! Form::daterange('filter_created_at', [], ['class' => 'form-control']) !!}
                                 </div>
@@ -24,7 +24,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                {!! Form::label('filter_updated_at', trans('common.updated_at'), ['class' => 'col-md-3 control-label']) !!}
+                                {!! Form::label('filter_updated_at', __('Updated at'), ['class' => 'col-md-3 control-label']) !!}
                                 <div class="col-md-9">
                                     {!! Form::daterange('filter_updated_at', [], ['class' => 'form-control']) !!}
                                 </div>
@@ -50,7 +50,7 @@
     };
     window.settings.mbDatatables = {
         trans: {
-            name: '{{trans('article::common.article')}}'
+            name: '{{__('Article')}}'
         }
     }
 </script>

@@ -27,19 +27,19 @@ return [
         'backend.sidebar.content.article' => [
             'priority' => 1,
             'url' => 'route:backend.article.index',
-            'label' => 'trans:article::common.article',
+            'label' => '__:Article',
             'icon' => 'fa-newspaper-o',
             'active' => 'backend/article*',
         ],
     ],
     'menuTypes' => [
         'article' => [
-            'title' => 'trans::article::menu.article.title',
+            'title' => '__::Article',
             'icon' => 'newspaper-o',
             'class' => \Minhbang\Article\Menus\ArticleMenu::class,
         ],
         'article_category' => [
-            'title' => 'trans::article::menu.article_category.title',
+            'title' => '__::Article category',
             'icon' => 'sitemap',
             'class' => \Minhbang\Article\Menus\ArticleCategoryMenu::class,
         ],
@@ -47,20 +47,20 @@ return [
 
     'widgets' => [
         'article' => [
-            'title' => 'trans::article::widget.article.title',
-            'description' => 'trans::article::widget.article.description',
+            'title' => '__::Article',
+            'description' => '__::Display article summary block',
             'icon' => 'newspaper-o',
             'class' => \Minhbang\Article\Widgets\ArticleWidget::class,
         ],
         'article_category' => [
-            'title' => 'trans::article::widget.article_category.title',
-            'description' => 'trans::article::widget.article_category.description',
+            'title' => '__::Article / Category',
+            'description' => '__::Display article category list',
             'icon' => 'sitemap',
             'class' => \Minhbang\Article\Widgets\ArticleCategoryWidget::class,
         ],
         'latest_articles' => [
-            'title' => 'trans::article::widget.latest_articles.title',
-            'description' => 'trans::article::widget.latest_articles.description',
+            'title' => '__::Article / List',
+            'description' => '__::Display latest article list',
             'icon' => 'list',
             'class' => \Minhbang\Article\Widgets\LatestArticlesWidget::class,
         ],

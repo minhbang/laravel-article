@@ -8,7 +8,7 @@
 @section('content')
     {!! Form::model($params,['class' => 'form-horizontal form-modal','url' => $url, 'method' => 'put']) !!}
     <div class="form-group">
-        <label class="col-xs-3 control-label">{{ trans('menu::common.menu') }}</label>
+        <label class="col-xs-3 control-label">{{ __('Menu') }}</label>
         <div class="col-xs-9">
             <p class="form-control-static text-primary">{{ $menu->label }}</p>
         </div>
