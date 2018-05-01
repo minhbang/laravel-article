@@ -33,5 +33,12 @@
         "psr-4": {
             "Minhbang\\Article\\Test\\": "tests/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Minhbang\\Article\\ServiceProvider"
+            ]
+        }
     }
 }
