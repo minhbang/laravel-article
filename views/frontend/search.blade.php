@@ -10,7 +10,7 @@
     <div class="content-heading">
         {{trans('common.search_result')}}: <span>{{$q}}</span>
     </div>
-    {!! Form::open(['method' => 'post']) !!}
+    {!! Form::open(['method' => 'get']) !!}
     <div class="input-group">
         {!! Form::text('q', $q, ['class' => 'form-control', 'placeholder' => trans('common.keyword').'...']) !!}
         <span class="input-group-btn"><button class="btn" type="submit"><i class="fa fa-search"></i></button></span>

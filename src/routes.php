@@ -6,7 +6,7 @@ Route::group([
     'as' => 'article.',
     'middleware' => config('article.middlewares.frontend'),
 ], function () {
-    Route::post('/', ['as' => 'search', 'uses' => 'FrontendController@search']);
+    Route::get('/', ['as' => 'search', 'uses' => 'FrontendController@search']);
     Route::get('category/{slug}', ['as' => 'category', 'uses' => 'FrontendController@category']);
     Route::get('{article}/{slug}', ['as' => 'show', 'uses' => 'FrontendController@show']);
 });
